@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Layers, Pencil, Award, DollarSign, Sparkles, Users, Target, Zap, Rocket } from 'lucide-react';
-import Footer from './Footer';
+
+// Footer Component
+function Footer() {
+  return (
+    <footer style={{
+      background: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
+      color: '#fff',
+      padding: '40px 20px',
+      textAlign: 'center'
+    }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <p style={{ margin: '0', fontSize: '1rem' }}>© 2024 Dimensify3D. All rights reserved.</p>
+      </div>
+    </footer>
+  );
+}
 
 export default function AboutUs() {
   const [isVisible, setIsVisible] = useState({});
@@ -8,11 +23,19 @@ export default function AboutUs() {
   const [particles, setParticles] = useState([]);
   const [secretCode, setSecretCode] = useState('');
   const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Secret code sequence (can be changed as needed)
   const targetCode = 'admin';
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -59,6 +82,7 @@ export default function AboutUs() {
     return () => {
       observer.disconnect();
       window.removeEventListener('keydown', handleKeyPress);
+      window.removeEventListener('resize', checkMobile);
     };
   }, [secretCode]);
 
@@ -134,7 +158,7 @@ export default function AboutUs() {
       {/* Hero Section with Particles */}
       <section style={styles.hero}>
         {/* Animated Background Particles */}
-        {particles.map((particle) => (
+        {!isMobile && particles.map((particle) => (
           <div
             key={particle.id}
             className="particle"
@@ -147,14 +171,18 @@ export default function AboutUs() {
         ))}
         
         {/* Floating Shapes */}
-        <div className="floating-shape shape-1" style={styles.floatingShape1}></div>
-        <div className="floating-shape shape-2" style={styles.floatingShape2}></div>
-        <div className="floating-shape shape-3" style={styles.floatingShape3}></div>
+        {!isMobile && (
+          <>
+            <div className="floating-shape shape-1" style={styles.floatingShape1}></div>
+            <div className="floating-shape shape-2" style={styles.floatingShape2}></div>
+            <div className="floating-shape shape-3" style={styles.floatingShape3}></div>
+          </>
+        )}
 
         <div style={styles.container}>
           <div style={styles.heroContent} className="animate-on-scroll hero-content" id="hero">
             <div className="glitch-wrapper">
-              <h1 style={styles.heroTitle} className="glitch" data-text="About Dimensify3D">
+              <h1 style={styles.heroTitle} className={isMobile ? '' : 'glitch'} data-text="About Dimensify3D">
                 About Dimensify3D
               </h1>
             </div>
@@ -163,10 +191,10 @@ export default function AboutUs() {
             </p>
             <div style={styles.heroDivider} className="expand-line"></div>
             <div style={styles.heroIcons}>
-              <div className="pulse-icon" style={styles.heroIcon}>
+              <div className={isMobile ? '' : 'pulse-icon'} style={styles.heroIcon}>
                 <Rocket size={32} />
               </div>
-              <div className="pulse-icon" style={{...styles.heroIcon, animationDelay: '0.3s'}}>
+              <div className={isMobile ? '' : 'pulse-icon'} style={{...styles.heroIcon, animationDelay: '0.3s'}}>
                 <Zap size={32} />
               </div>
             </div>
@@ -178,40 +206,42 @@ export default function AboutUs() {
       <section style={styles.section}>
         <div style={styles.container}>
           <div style={styles.row}>
-            <div style={styles.colLg6} className="animate-on-scroll slide-in-left" id="mission">
+            <div style={isMobile ? styles.colMobile : styles.colLg6} className="animate-on-scroll slide-in-left" id="mission">
               <div style={styles.missionBox}>
                 <h2 style={styles.sectionTitle} className="gradient-text">Our Mission</h2>
-                <p style={{...styles.text, textAlign: 'justify'}} className="reveal-text">
+                <p style={{...styles.text, textAlign: 'justify'}} className={isMobile ? '' : 'reveal-text'}>
                   At Dimensify3D, we believe that every idea deserves to take shape. Our mission is simple – to make 3D printing accessible, innovative, and impactful for individuals and businesses across India.
                 </p>
-                <p style={{...styles.text, textAlign: 'justify'}} className="reveal-text">
+                <p style={{...styles.text, textAlign: 'justify'}} className={isMobile ? '' : 'reveal-text'}>
                   From turning your designs into reality to providing ready-to-use 3D products, we are here to bridge the gap between imagination and creation.
                 </p>
               </div>
             </div>
-            <div style={styles.dividerCol}>
-              <svg style={styles.curvyLine} viewBox="0 0 100 400" preserveAspectRatio="none">
-                <path 
-                  d="M 50 0 Q 20 100 50 200 T 50 400" 
-                  fill="none" 
-                  stroke="url(#gradient)" 
-                  strokeWidth="3"
-                  className="curvy-path"
-                />
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#2a65c5" stopOpacity="0.3" />
-                    <stop offset="50%" stopColor="#0a50b1" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#2a65c5" stopOpacity="0.3" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-            <div style={styles.colLg6} className="animate-on-scroll slide-in-right" id="mission-visual">
+            {!isMobile && (
+              <div style={styles.dividerCol}>
+                <svg style={styles.curvyLine} viewBox="0 0 100 400" preserveAspectRatio="none">
+                  <path 
+                    d="M 50 0 Q 20 100 50 200 T 50 400" 
+                    fill="none" 
+                    stroke="url(#gradient)" 
+                    strokeWidth="3"
+                    className="curvy-path"
+                  />
+                  <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#2a65c5" stopOpacity="0.3" />
+                      <stop offset="50%" stopColor="#0a50b1" stopOpacity="0.8" />
+                      <stop offset="100%" stopColor="#2a65c5" stopOpacity="0.3" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+            )}
+            <div style={isMobile ? styles.colMobile : styles.colLg6} className="animate-on-scroll slide-in-right" id="mission-visual">
               <div style={styles.visualBox}>
-                <div style={styles.floatingIconWrapper} className="floating-3d">
-                  <Box size={80} strokeWidth={1.5} />
-                  <div className="glow-effect"></div>
+                <div style={styles.floatingIconWrapper} className={isMobile ? '' : 'floating-3d'}>
+                  <Box size={isMobile ? 60 : 80} strokeWidth={1.5} />
+                  {!isMobile && <div className="glow-effect"></div>}
                 </div>
               </div>
             </div>
@@ -221,7 +251,7 @@ export default function AboutUs() {
 
       {/* Who We Are Section with Wave Animation */}
       <section style={{...styles.section, ...styles.darkSection}}>
-        <div className="wave-top"></div>
+        {!isMobile && <div className="wave-top"></div>}
         <div style={styles.container}>
           <div className="animate-on-scroll zoom-in" id="who-we-are">
             <h2 style={{...styles.sectionTitle, color: '#fff', textAlign: 'center'}}>
@@ -232,7 +262,7 @@ export default function AboutUs() {
             </p>
           </div>
         </div>
-        <div className="wave-bottom"></div>
+        {!isMobile && <div className="wave-bottom"></div>}
       </section>
 
       {/* Services Section with Stagger Animation */}
@@ -245,13 +275,13 @@ export default function AboutUs() {
             {services.map((service, index) => (
               <div 
                 key={index} 
-                className="animate-on-scroll service-card" 
+                className={isMobile ? '' : 'animate-on-scroll service-card'} 
                 id={`service-${index}`} 
-                style={{...styles.serviceCard, animationDelay: `${index * 0.2}s`}}
+                style={{...styles.serviceCard, animationDelay: isMobile ? '0s' : `${index * 0.2}s`}}
               >
                 <div style={styles.cardGlow}></div>
                 <div style={styles.serviceCardBody}>
-                  <div style={{...styles.serviceIcon, color: service.color}} className="service-icon rotate-on-hover">
+                  <div style={{...styles.serviceIcon, color: service.color}} className={isMobile ? 'service-icon' : 'service-icon rotate-on-hover'}>
                     {service.icon}
                   </div>
                   <h3 style={styles.serviceTitle}>{service.title}</h3>
@@ -276,16 +306,16 @@ export default function AboutUs() {
             {features.map((feature, index) => (
               <div 
                 key={index} 
-                className="animate-on-scroll feature-card tilt-card" 
+                className={isMobile ? 'feature-card' : 'animate-on-scroll feature-card tilt-card'} 
                 id={`feature-${index}`} 
-                style={{...styles.featureCard, animationDelay: `${index * 0.15}s`}}
+                style={{...styles.featureCard, animationDelay: isMobile ? '0s' : `${index * 0.15}s`}}
               >
                 <div style={{...styles.featureIconWrapper, background: feature.gradient}}>
                   <div style={styles.featureIcon}>{feature.icon}</div>
                 </div>
                 <h4 style={styles.featureTitle}>{feature.title}</h4>
                 <p style={styles.featureText}>{feature.description}</p>
-                <div className="shine-effect"></div>
+                {!isMobile && <div className="shine-effect"></div>}
               </div>
             ))}
           </div>
@@ -296,9 +326,13 @@ export default function AboutUs() {
       <section style={styles.section}>
         <div style={styles.container}>
           <div className="animate-on-scroll bounce-in" id="vision">
-            <div style={styles.visionBox} className="morphing-bg">
-              <div className="blob blob-1"></div>
-              <div className="blob blob-2"></div>
+            <div style={styles.visionBox} className={isMobile ? '' : 'morphing-bg'}>
+              {!isMobile && (
+                <>
+                  <div className="blob blob-1"></div>
+                  <div className="blob blob-2"></div>
+                </>
+              )}
               <h2 style={{...styles.sectionTitle, color: '#fff', position: 'relative', zIndex: 2}}>
                 Our Vision Ahead
               </h2>
@@ -306,7 +340,7 @@ export default function AboutUs() {
                 We aim to grow into a one-stop destination for 3D printing and design innovation. From supporting makers and businesses today to offering advanced industrial-grade solutions tomorrow, Dimensify3D is on a journey to reshape the way India creates.
               </p>
               <div style={{...styles.visionHighlight, position: 'relative', zIndex: 2}}>
-                <div className="pulse-ring">
+                <div className={isMobile ? '' : 'pulse-ring'}>
                   <Target size={48} strokeWidth={1.5} />
                 </div>
                 <p style={styles.visionText}>Shaping the Future of Creation in India</p>
@@ -713,11 +747,11 @@ export default function AboutUs() {
             display: none;
           }
           .dividerCol {
-            display: none;
+            display: none !important;
           }
           .colLg6 {
-            flex: 0 0 100%;
-            max-width: 100%;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
           }
         }
       `}</style>
@@ -748,6 +782,12 @@ const styles = {
     flex: '0 0 45%',
     maxWidth: '45%',
     padding: '0 15px',
+  },
+  colMobile: {
+    flex: '0 0 100%',
+    maxWidth: '100%',
+    padding: '0 15px',
+    marginBottom: '30px',
   },
   dividerCol: {
     flex: '0 0 10%',

@@ -825,7 +825,7 @@ export default function Cart() {
                           <div className="price-container">
                             {item.price === 0 ? (
                               <span className="custom-price-text">
-                                Price will be decided at checkout based on your requirements
+                                Price will be decided at checkout page based on your requirements
                               </span>
                             ) : (
                               <>

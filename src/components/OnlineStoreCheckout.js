@@ -826,7 +826,8 @@ const OnlineStoreCheckout = () => {
       display: flex;
       gap: 1rem;
       align-items: center;
-    }
+    //   width:280px;
+    // }
 
     .product-card:hover {
       border-color: #2a65c5;
@@ -894,7 +895,6 @@ const OnlineStoreCheckout = () => {
     }
 
     .info-section {
-      padding: 1.5rem;
       border-radius: 0.75rem;
       background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
       border: 1px solid rgba(42, 101, 197, 0.1);
@@ -1324,7 +1324,7 @@ const OnlineStoreCheckout = () => {
                                 <>
                                   <strong className="text-primary">₹{customizations[item.id]?.cost ? customizations[item.id].cost * item.quantity : 0}</strong>
                                   {customizations[item.id]?.mediumText ? (
-                                    <span className="customization-badge ms-2">
+                                    <span className="customization-badge">
                                       <i className="fas fa-check me-1"></i>Customized
                                     </span>
                                   ) : (
