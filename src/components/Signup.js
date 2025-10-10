@@ -915,13 +915,13 @@ const SignupPage = () => {
                                             fontWeight: '500'
                                         }}>
                                             By signing up, you agree to our{' '}
-                                            <a href="/terms" style={{
+                                            <a href="/termsconditions" style={{
                                                 color: '#2563eb',
                                                 textDecoration: 'none',
                                                 fontWeight: '600'
-                                            }}>Terms of Service</a>{' '}
+                                            }}>Terms and Conditions</a>{' '}
                                             and{' '}
-                                            <a href="/privacy" style={{
+                                            <a href="/privacypolicy" style={{
                                                 color: '#2563eb',
                                                 textDecoration: 'none',
                                                 fontWeight: '600'

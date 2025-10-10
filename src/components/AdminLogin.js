@@ -22,37 +22,41 @@ export default function AdminLogin() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
+  e.preventDefault();
+  setIsLoading(true);
+  setError('');
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin-credentials`);
+    const result = await response.json();
     
-    try {
-      // Call the API to get admin credentials
-      const response = await fetch(`${API_BASE_URL}/api/admin-credentials`);
-      const result = await response.json();
-      
-      if (!result.success) {
-        throw new Error(result.message || 'Failed to fetch admin credentials');
-      }
-      
-      const adminCredentials = result.data;
-      
-      // Check if credentials match
-      if (formData.userId.trim() === adminCredentials.userid.trim() && 
-          formData.password === adminCredentials.password) {
-        // Successful login - redirect to admin dashboard
-        window.location.href = '/admindashboard';
-      } else {
-        setError('Invalid user ID or password');
-      }
-      
-    } catch (error) {
-      console.error('Login error:', error);
-      setError('Login failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+    if (!result.success) {
+      throw new Error(result.message || 'Failed to fetch admin credentials');
     }
-  };
+    
+    const adminCredentials = result.data;
+    
+    if (
+      formData.userId.trim() === adminCredentials.userid.trim() &&
+      formData.password === adminCredentials.password
+    ) {
+      // ✅ Store login flag in localStorage
+      localStorage.setItem("d3dadminLogin", "true");
+
+      // Redirect to dashboard
+      window.location.href = '/admindashboard';
+    } else {
+      setError('Invalid user ID or password');
+    }
+    
+  } catch (error) {
+    console.error('Login error:', error);
+    setError('Login failed. Please try again.');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !isLoading) {

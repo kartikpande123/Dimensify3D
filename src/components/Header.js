@@ -3,7 +3,7 @@ import { ShoppingCart, User, HelpCircle, Store, LogIn, UserPlus, Menu, X, Chevro
 import logo from "../images/logo-1.png"
 import './Header.css';
 import { useNavigate } from 'react-router-dom';
-import API_BASE_URL  from "./apiConfig"
+import API_BASE_URL from "./apiConfig"
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,19 +12,9 @@ const Header = () => {
     const [user, setUser] = useState(null);
     const [showLogoutPopup, setShowLogoutPopup] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [cartItemsCount, setCartItemsCount] = useState(0);
+    const [products, setProducts] = useState([]);
     const navigate = useNavigate();
-
-    // Sample 3D model images - replace with your actual images
-    const modelImages = [
-        { id: 1, src: "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400&h=300&fit=crop&crop=center", alt: "3D Printed Prototype 1", title: "Mechanical Parts" },
-        { id: 2, src: "https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=400&h=300&fit=crop&crop=center", alt: "3D Printed Prototype 2", title: "Architectural Model" },
-        { id: 3, src: "https://images.unsplash.com/photo-1605647540924-852290f6b0d5?w=400&h=300&fit=crop&crop=center", alt: "3D Printed Prototype 3", title: "Medical Device" },
-        { id: 4, src: "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400&h=300&fit=crop&crop=center", alt: "3D Printed Prototype 4", title: "Custom Tools" },
-        { id: 5, src: "https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=400&h=300&fit=crop&crop=center", alt: "3D Printed Prototype 5", title: "Art Sculpture" },
-        { id: 6, src: "https://images.unsplash.com/photo-1605647540924-852290f6b0d5?w=400&h=300&fit=crop&crop=center", alt: "3D Printed Prototype 6", title: "Industrial Component" },
-        { id: 7, src: "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400&h=300&fit=crop&crop=center", alt: "3D Printed Prototype 7", title: "Consumer Product" },
-        { id: 8, src: "https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=400&h=300&fit=crop&crop=center", alt: "3D Printed Prototype 8", title: "Electronics Housing" }
-    ];
 
     useEffect(() => {
         const handleScroll = () => {
@@ -41,6 +31,8 @@ const Header = () => {
     useEffect(() => {
         // Check if user is logged in when component mounts
         checkUserLogin();
+        // Fetch products for gallery
+        fetchProducts();
     }, []);
 
     const checkUserLogin = async () => {
@@ -67,6 +59,8 @@ const Header = () => {
             if (data.success && data.data) {
                 setIsLoggedIn(true);
                 setUser(data.data);
+                // Calculate cart items count
+                calculateCartItemsCount(data.data);
             } else {
                 setIsLoggedIn(false);
                 // Remove invalid phone number from localStorage
@@ -77,6 +71,31 @@ const Header = () => {
             setIsLoggedIn(false);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const calculateCartItemsCount = (userData) => {
+        if (userData && userData.cart) {
+            // Count all items in cart (sum of quantities)
+            const totalItems = Object.values(userData.cart).reduce((total, item) => {
+                return total + (item.quantity || 1);
+            }, 0);
+            setCartItemsCount(totalItems);
+        } else {
+            setCartItemsCount(0);
+        }
+    };
+
+    const fetchProducts = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/get-products`);
+            const data = await response.json();
+            
+            if (data.success && data.data) {
+                setProducts(data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching products:', error);
         }
     };
 
@@ -94,9 +113,10 @@ const Header = () => {
         
         setIsLoggedIn(false);
         setUser(null);
+        setCartItemsCount(0);
         setShowLogoutPopup(false);
         // Optionally navigate to home page or login page
-        // navigate('/');
+        navigate('/');
     };
 
     const cancelLogout = () => {
@@ -108,9 +128,37 @@ const Header = () => {
     };
 
     const handleConsultancy = () => {
-        // Add your consultancy navigation logic here
-        console.log('Navigate to consultancy');
-        // navigate('/consultancy');
+        navigate('/consultancy');
+    };
+
+    const handleHelp = () => {
+        navigate('/help');
+    };
+
+    const handleOnlineStore = () => {
+        navigate('/onlinestore');
+    };
+
+    const handleCart = () => {
+        navigate('/cart');
+    };
+
+    const handleAccount = () => {
+        navigate('/account');
+    };
+
+    // Use only product images from API
+    const galleryImages = products.length > 0 ? 
+        products.slice(0, 8).map((product, index) => ({
+            id: product.id || index,
+            src: product.images?.[0] || '',
+            alt: product.modelName || `3D Printed ${product.category}`,
+            title: product.modelName || `3D ${product.category}`
+        })).filter(img => img.src) : // Filter out products without images
+        [];
+
+    const handleImageClick = () => {
+        navigate('/onlinestore');
     };
 
     return (
@@ -121,7 +169,7 @@ const Header = () => {
                         {/* Logo and Brand */}
                         <div className="brand-container">
                             <div className="logo-wrapper">
-                               <img src={logo} alt="logo"/>
+                               <img src={logo} alt="Dimensify3D Logo" className="brand-logo"/>
                             </div>
                             <div>
                                 <h1 className="brand-text">Dimensify3D</h1>
@@ -132,11 +180,11 @@ const Header = () => {
                         {/* Desktop Navigation */}
                         <div className="desktop-nav">
                             <div className="nav-desktop">
-                                <button className="nav-item">
+                                <button className="nav-item" onClick={handleAccount}>
                                     <User size={18} />
                                     <span>Account</span>
                                 </button>
-                                <button className="nav-item">
+                                <button className="nav-item" onClick={handleHelp}>
                                     <HelpCircle size={18} />
                                     <span>Help</span>
                                 </button>
@@ -144,16 +192,18 @@ const Header = () => {
                                     <MessageCircle size={18} />
                                     <span>Consultancy</span>
                                 </button>
-                                <button className="nav-item">
+                                <button className="nav-item" onClick={handleOnlineStore}>
                                     <Store size={18} />
                                     <span>Online Store</span>
                                 </button>
                                 <div className="cart-container">
-                                    <button className="nav-item">
+                                    <button className="nav-item" onClick={handleCart}>
                                         <ShoppingCart size={18} />
                                         <span>Cart</span>
                                     </button>
-                                    <span className="cart-badge">3</span>
+                                    {cartItemsCount > 0 && (
+                                        <span className="cart-badge">{cartItemsCount}</span>
+                                    )}
                                 </div>
                             </div>
 
@@ -187,11 +237,11 @@ const Header = () => {
                     {/* Mobile Navigation Menu */}
                     <div className={`mobile-menu ${isMenuOpen ? 'open' : 'closed'}`}>
                         <div>
-                            <button className="mobile-nav-item">
+                            <button className="mobile-nav-item" onClick={handleAccount}>
                                 <User size={18} />
                                 <span>Account</span>
                             </button>
-                            <button className="mobile-nav-item">
+                            <button className="mobile-nav-item" onClick={handleHelp}>
                                 <HelpCircle size={18} />
                                 <span>Help</span>
                             </button>
@@ -199,20 +249,22 @@ const Header = () => {
                                 <MessageCircle size={18} />
                                 <span>Consultancy</span>
                             </button>
-                            <button className="mobile-nav-item">
+                            <button className="mobile-nav-item" onClick={handleOnlineStore}>
                                 <Store size={18} />
                                 <span>Online Store</span>
                             </button>
                             <div style={{ position: 'relative' }}>
-                                <button className="mobile-nav-item">
+                                <button className="mobile-nav-item" onClick={handleCart}>
                                     <ShoppingCart size={18} />
                                     <span>Cart</span>
                                 </button>
-                                <span style={{
-                                    position: 'absolute',
-                                    top: '12px',
-                                    left: '36px'
-                                }} className="cart-badge">3</span>
+                                {cartItemsCount > 0 && (
+                                    <span style={{
+                                        position: 'absolute',
+                                        top: '12px',
+                                        left: '36px'
+                                    }} className="cart-badge">{cartItemsCount}</span>
+                                )}
                             </div>
 
                             <div className="mobile-auth-section">
@@ -266,6 +318,14 @@ const Header = () => {
                             <span className="welcome-text"> Welcome back, {user.name || user.phone}!</span>
                         )}
                     </p>
+                    
+                    {/* Compact STL Scroll Note */}
+                    <div className="scroll-note-inline">
+                        <span className="scroll-message-inline">Scroll down to slice your STL file</span>
+                        <div className="scroll-arrow-inline">
+                            <ChevronDown size={16} />
+                        </div>
+                    </div>
                 </div>
 
                 {/* 3D Models Gallery */}
@@ -275,45 +335,159 @@ const Header = () => {
                         <p>Explore our portfolio of precision-crafted 3D printed products</p>
                     </div>
                     
-                    <div className="gallery-container">
-                        <div className={`gallery-track ${modelImages.length > 5 ? 'infinite-scroll' : ''}`}>
-                            {/* Original images */}
-                            {modelImages.map((image) => (
-                                <div key={image.id} className="gallery-item">
-                                    <div className="image-wrapper">
-                                        <img 
-                                            src={image.src} 
-                                            alt={image.alt}
-                                            loading="lazy"
-                                        />
-                                        <div className="image-overlay">
-                                            <h4>{image.title}</h4>
+                    {galleryImages.length > 0 ? (
+                        <div className="gallery-container">
+                            <div className={`gallery-track ${galleryImages.length >= 1 ? 'infinite-scroll' : ''}`}>
+                                {/* Original images */}
+                                {galleryImages.map((image) => (
+                                    <div 
+                                        key={image.id} 
+                                        className="gallery-item"
+                                        onClick={handleImageClick}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        <div className="image-wrapper">
+                                            <img 
+                                                src={image.src} 
+                                                alt={image.alt}
+                                                loading="lazy"
+                                            />
+                                            <div className="image-overlay">
+                                                <h4>{image.title}</h4>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-                            
-                            {/* Duplicate images for infinite scroll effect */}
-                            {modelImages.length > 5 && modelImages.map((image) => (
-                                <div key={`duplicate-${image.id}`} className="gallery-item">
-                                    <div className="image-wrapper">
-                                        <img 
-                                            src={image.src} 
-                                            alt={image.alt}
-                                            loading="lazy"
-                                        />
-                                        <div className="image-overlay">
-                                            <h4>{image.title}</h4>
+                                ))}
+                                
+                                {/* Duplicate images for infinite scroll effect */}
+                                {galleryImages.length >= 1 && galleryImages.map((image) => (
+                                    <div 
+                                        key={`duplicate-${image.id}`} 
+                                        className="gallery-item"
+                                        onClick={handleImageClick}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        <div className="image-wrapper">
+                                            <img 
+                                                src={image.src} 
+                                                alt={image.alt}
+                                                loading="lazy"
+                                            />
+                                            <div className="image-overlay">
+                                                <h4>{image.title}</h4>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="no-products-message">
+                            <p>No products available at the moment. Check back soon!</p>
+                        </div>
+                    )}
                 </div>
             </div>
 
             <style jsx>{`
+                /* Logo Styles */
+                .logo-wrapper {
+                    width: 60px;
+                    height: 60px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: white;
+                    border-radius: 14px;
+                    padding: 4px;
+                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                }
+
+                .brand-logo {
+                    width: 120%;
+                    height: 120%;
+                    object-fit: contain;
+                    transform: scale(1.8);
+                }
+
+                /* Inline Scroll Note Styles */
+                .scroll-note-inline {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-top: 16px;
+                    padding: 12px 18px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 25px;
+                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                    animation: fadeInUp 1.5s ease-out;
+                }
+
+                .scroll-message-inline {
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    color: white;
+                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+                    white-space: nowrap;
+                }
+
+                .scroll-arrow-inline {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 24px;
+                    height: 24px;
+                    background: rgba(255, 255, 255, 0.2);
+                    border-radius: 50%;
+                    animation: bounce 2s infinite, blink 1.5s infinite;
+                }
+
+                .scroll-arrow-inline svg {
+                    color: white;
+                    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+                }
+
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+
+                @keyframes bounce {
+                    0%, 20%, 50%, 80%, 100% {
+                        transform: translateY(0);
+                    }
+                    40% {
+                        transform: translateY(-4px);
+                    }
+                    60% {
+                        transform: translateY(-2px);
+                    }
+                }
+
+                @keyframes blink {
+                    0%, 50% {
+                        opacity: 1;
+                    }
+                    51%, 100% {
+                        opacity: 0.4;
+                    }
+                }
+
+                /* No Products Message */
+                .no-products-message {
+                    text-align: center;
+                    padding: 60px 20px;
+                    color: #64748b;
+                    font-size: 1.1rem;
+                }
+
+                /* Existing Gallery Styles */
                 .models-gallery {
                     width: 100%;
                     padding: 60px 0;
@@ -377,6 +551,11 @@ const Header = () => {
                     width: 320px;
                     height: 240px;
                     position: relative;
+                    transition: transform 0.2s ease;
+                }
+
+                .gallery-item:active {
+                    transform: scale(0.98);
                 }
 
                 .image-wrapper {
@@ -398,8 +577,10 @@ const Header = () => {
                 .image-wrapper img {
                     width: 100%;
                     height: 100%;
-                    object-fit: cover;
+                    object-fit: contain;
+                    object-position: center;
                     transition: transform 0.3s ease;
+                    display: block;
                 }
 
                 .image-wrapper:hover img {
@@ -435,6 +616,31 @@ const Header = () => {
 
                 /* Mobile responsiveness */
                 @media (max-width: 768px) {
+                    .logo-wrapper {
+                        width: 55px;
+                        height: 55px;
+                        padding: 8px;
+                    }
+
+                    .scroll-note-inline {
+                        margin-top: 12px;
+                        padding: 10px 14px;
+                    }
+
+                    .scroll-message-inline {
+                        font-size: 0.8rem;
+                    }
+
+                    .scroll-arrow-inline {
+                        width: 20px;
+                        height: 20px;
+                    }
+
+                    .scroll-arrow-inline svg {
+                        width: 14px;
+                        height: 14px;
+                    }
+
                     .models-gallery {
                         padding: 40px 0;
                     }
@@ -463,6 +669,21 @@ const Header = () => {
                 }
 
                 @media (max-width: 480px) {
+                    .logo-wrapper {
+                        width: 48px;
+                        height: 48px;
+                        padding: 6px;
+                    }
+
+                    .scroll-note-inline {
+                        padding: 8px 12px;
+                        gap: 6px;
+                    }
+
+                    .scroll-message-inline {
+                        font-size: 0.75rem;
+                    }
+
                     .gallery-item {
                         width: 250px;
                         height: 180px;

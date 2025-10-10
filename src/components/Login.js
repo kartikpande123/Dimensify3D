@@ -46,67 +46,67 @@ const LoginPage = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (validateForm()) {
-      setIsLoading(true);
+  if (validateForm()) {
+    setIsLoading(true);
+    
+    try {
+      // Fetch all users from the API
+      const response = await fetch(`${API_BASE_URL}/api/users`);
       
-      try {
-        // Fetch all users from the API
-        const response = await fetch(`${API_BASE_URL}/api/users`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch users');
-        }
-
-        const result = await response.json();
-        
-        if (!result.success || !result.data) {
-          throw new Error('Invalid response from server');
-        }
-
-        // Find user with matching phone number
-        const user = result.data.find(userData => userData.phone === formData.phone);
-        
-        if (!user) {
-          // Set error for phone field specifically
-          setErrors({ phone: 'This phone number is not registered. Please check your number or contact admin.' });
-          setIsLoading(false);
-          return;
-        }
-
-        // Check if password matches
-        if (user.password !== formData.password) {
-          // Set error for password field specifically
-          setErrors({ password: 'Incorrect password. Please try again.' });
-          setIsLoading(false);
-          return;
-        }
-
-        // Check if user is active
-        if (user.status !== 'active') {
-          alert('Your account is inactive. Please contact admin for assistance.');
-          setIsLoading(false);
-          return;
-        }
-
-        // Login successful - clear any existing errors
-        setErrors({});
-        
-        alert(`Login successful! Welcome back, ${user.name}! Redirecting...`);
-        
-        // Navigate back to previous page after 3 seconds
-        setTimeout(() => {
-          window.history.back();
-        }, 3000);
-        
-      } catch (error) {
-        console.error('Login error:', error);
-        alert('Login failed. Please try again or contact support.');
-        setIsLoading(false);
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
       }
+
+      const result = await response.json();
+      
+      if (!result.success || !result.data) {
+        throw new Error('Invalid response from server');
+      }
+
+      // Find user with matching phone number
+      const user = result.data.find(userData => userData.phone === formData.phone);
+      
+      if (!user) {
+        setErrors({ phone: 'This phone number is not registered. Please check your number or contact admin.' });
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if password matches
+      if (user.password !== formData.password) {
+        setErrors({ password: 'Incorrect password. Please try again.' });
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if user is active
+      if (user.status !== 'active') {
+        alert('Your account is inactive. Please contact admin for assistance.');
+        setIsLoading(false);
+        return;
+      }
+
+      // ✅ Login successful
+      setErrors({});
+      
+      // Store phone number in localStorage
+      localStorage.setItem("dimensify3duserphoneNo", user.phone);
+
+      // Navigate back after 3 seconds
+      setTimeout(() => {
+        window.history.back();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Login failed. Please try again or contact support.');
+      setIsLoading(false);
     }
-  };
+  }
+};
+
 
   return (
     <div style={{
@@ -564,7 +564,7 @@ const LoginPage = () => {
                     e.target.style.boxShadow = '0 4px 20px rgba(42, 101, 197, 0.4)';
                   }}
                 >
-                  {isLoading ? 'Logging In...' : 'Login to Dashboard'}
+                  {isLoading ? 'Logging In...' : 'Login'}
                 </button>
 
                 {/* Footer */}

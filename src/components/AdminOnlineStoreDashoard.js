@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
-import { CreditCard, Plus, History, ArrowDownCircle, HelpCircle,UserCheck, ShoppingCart, Paperclip, ListOrdered, LogOut } from 'lucide-react';
+import { CreditCard, Plus, History, ArrowDownCircle, HelpCircle,UserCheck, CreditCardIcon, ShoppingCart, Paperclip, ListOrdered, } from 'lucide-react';
 import logo from "../images/logo-1.png"
 import { useNavigate } from 'react-router-dom';
 
-function AdminDashboard() {
+function AdminOnlineStoreDashboard() {
     useEffect(() => {
         // Add styles to head
         const styleTag = document.createElement('style');
@@ -99,100 +99,49 @@ function AdminDashboard() {
 
     const navigate = useNavigate()
 
-    // Logout function
-    function handleLogout() {
-        localStorage.removeItem('d3dadminLogin');
-        navigate('/');
-    }
-
     // Navigation functions (placeholder - replace with your actual navigation logic)
-    function goTOHelp() {
-        navigate("/adminhelp")
+    function goAddProducts() {
+        navigate("/adminonlinestore")
     }
 
-    function goPrintRequest() {
-        console.log("Navigate to: /admintokendetails");
-        navigate("/adminorders")
-    }
-    
-    function goTransactionHistory() {
-        console.log("Navigate to: /admintransactionsdashboard");
-    }
-    function goConsultancyRequest() {
-        navigate("/adminconultancy")
-        console.log("Navigate to: /adminconultancy");
-    }
-    function goAddCoupon() {
-        navigate("/admincoupon")
-        console.log("Navigate to: /adminconultancy");
+    function goAdminOrdersOnlineStore() {
+        navigate("/adminordersonlinestore")
     }
 
-    function goAddOnlineStoreProduct(){
-        navigate("/adminonlinestoredashboard")
+     function goAdminOnlineStoreOrderUpdate() {
+        navigate("/adminonlinestoreorderupdate")
     }
-    function goOrderBill(){
-        navigate("/adminorderprint")
-    }
-
-    function goOrderUpdate(){
-        navigate("/orderupdate")
+     function goAdminOnlineStorePrint() {
+        navigate("/adminonlinestoreorderprint")
     }
 
-
-    function goAdminTransaction(){
-        navigate("/admintransaction")
-    }
 
     const menuItems = [
         {
-            title: 'Help Requests',
-            icon: HelpCircle,
-            onClick: goTOHelp,
-            description: 'Process and manage user concerns'
-        },
-        {
-            title: '3D Print Order',
+            title: 'Add Products',
             icon: Plus,
-            onClick: goPrintRequest,
-            description: 'Handle 3D Print Orders'
+            onClick: goAddProducts,
+            description: 'Add 3D Model Products'
         },
         {
-            title: 'Transaction History',
-            icon: History,
-            onClick: goAdminTransaction,
-            description: 'View complete transaction logs and history'
+            title: 'Order Requests',
+            icon: ListOrdered,
+            onClick: goAdminOrdersOnlineStore,
+            description: '3D Model Products Order Details'
         },
         {
-            title: 'Consultancy Request',
-            icon: UserCheck,
-            onClick: goConsultancyRequest,
-            description: 'Manage Consultancy Requests'
+            title: 'Order Update',
+            icon: ArrowDownCircle,
+            onClick: goAdminOnlineStoreOrderUpdate,
+            description: '3D Model Products Order Update Status'
         },
         {
-            title: 'Add Coupons',
-            icon: CreditCard,
-            onClick: goAddCoupon,
-            description: 'Add and manage Coupons'
+            title: 'Order Bill Download',
+            icon: Paperclip,
+            onClick: goAdminOnlineStorePrint,
+            description: '3D Model Products Order Bill Download as PDF.'
         },
-        {
-            title: 'Orders Bill Download',
-            icon:Paperclip,
-            onClick: goOrderBill,
-            description: 'Download Orders Bills'
-        },
-        {
-            title: 'Orders update',
-            icon:ListOrdered,
-            onClick: goOrderUpdate,
-            description: 'Download Orders Bills'
-        },
-        {
-            title: 'Admin Online Store Dashboard',
-            icon:ShoppingCart,
-            onClick: goAddOnlineStoreProduct,
-            description: 'Online Store Related pages',
-            isStore: true // Added flag to identify store card
-        },
+       
     ];
 
     const styles = {
@@ -269,25 +218,6 @@ function AdminDashboard() {
             textShadow: '0 2px 4px rgba(0,0,0,0.2)',
             textAlign: 'center'
         },
-        rightSection: {
-            display: 'flex',
-            alignItems: 'center'
-        },
-        logoutButton: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '12px 24px',
-            background: 'rgba(255, 255, 255, 0.2)',
-            border: '2px solid rgba(255, 255, 255, 0.3)',
-            borderRadius: '12px',
-            color: 'white',
-            fontSize: '16px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            backdropFilter: 'blur(10px)'
-        },
         mainContent: {
             padding: '40px 32px',
             maxWidth: '1400px',
@@ -314,20 +244,6 @@ function AdminDashboard() {
             width: '100%',
             maxWidth: '400px'
         },
-        storeCard: {
-            background: 'linear-gradient(135deg, rgba(255, 245, 245, 0.95) 0%, rgba(255, 250, 250, 0.95) 100%)',
-            borderRadius: '20px',
-            padding: '40px',
-            boxShadow: '0 10px 30px rgba(239, 68, 68, 0.15)',
-            border: '1px solid rgba(239, 68, 68, 0.2)',
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            cursor: 'pointer',
-            backdropFilter: 'blur(10px)',
-            position: 'relative',
-            overflow: 'hidden',
-            width: '100%',
-            maxWidth: '400px'
-        },
         cardIcon: {
             width: '80px',
             height: '80px',
@@ -342,31 +258,10 @@ function AdminDashboard() {
             boxShadow: '0 8px 20px rgba(42, 101, 197, 0.3)',
             position: 'relative'
         },
-        storeCardIcon: {
-            width: '80px',
-            height: '80px',
-            background: 'linear-gradient(316deg, rgb(239, 68, 68) 0%, rgb(220, 38, 38) 100%)',
-            borderRadius: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 24px',
-            color: 'white',
-            fontSize: '32px',
-            boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)',
-            position: 'relative'
-        },
         cardTitle: {
             fontSize: '22px',
             fontWeight: '700',
             color: '#1f2937',
-            textAlign: 'center',
-            marginBottom: '12px'
-        },
-        storeCardTitle: {
-            fontSize: '22px',
-            fontWeight: '700',
-            color: '#991b1b',
             textAlign: 'center',
             marginBottom: '12px'
         },
@@ -375,31 +270,17 @@ function AdminDashboard() {
             color: '#6b7280',
             textAlign: 'center',
             lineHeight: '1.6'
-        },
-        storeCardDescription: {
-            fontSize: '16px',
-            color: '#dc2626',
-            textAlign: 'center',
-            lineHeight: '1.6'
         }
     };
 
-    const handleCardHover = (e, isEntering, isStore = false) => {
+    const handleCardHover = (e, isEntering) => {
         const card = e.currentTarget;
         if (isEntering) {
             card.style.transform = 'translateY(-12px) scale(1.02)';
-            if (isStore) {
-                card.style.boxShadow = '0 20px 40px rgba(239, 68, 68, 0.2)';
-            } else {
-                card.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.15)';
-            }
+            card.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.15)';
         } else {
             card.style.transform = 'translateY(0) scale(1)';
-            if (isStore) {
-                card.style.boxShadow = '0 10px 30px rgba(239, 68, 68, 0.15)';
-            } else {
-                card.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
-            }
+            card.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
         }
     };
 
@@ -415,16 +296,6 @@ function AdminDashboard() {
             if (logoIcon) {
                 logoIcon.style.transform = 'rotate(0deg) scale(1)';
             }
-        }
-    };
-
-    const handleLogoutHover = (e, isEntering) => {
-        if (isEntering) {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
-            e.currentTarget.style.transform = 'scale(1.05)';
-        } else {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-            e.currentTarget.style.transform = 'scale(1)';
         }
     };
 
@@ -455,21 +326,8 @@ function AdminDashboard() {
                     {/* Center Section - Dashboard Title */}
                     <div style={styles.centerSection}>
                         <h1 style={styles.dashboardTitle}>
-                            <strong>ADMIN DASHBOARD</strong>
+                            <strong>ADMIN ONLINE STORE DASHBOARD</strong>
                         </h1>
-                    </div>
-
-                    {/* Right Section - Logout Button */}
-                    <div style={styles.rightSection}>
-                        <button
-                            style={styles.logoutButton}
-                            onClick={handleLogout}
-                            onMouseEnter={(e) => handleLogoutHover(e, true)}
-                            onMouseLeave={(e) => handleLogoutHover(e, false)}
-                        >
-                            <LogOut size={20} />
-                            <span>Logout</span>
-                        </button>
                     </div>
                 </nav>
             </header>
@@ -479,25 +337,19 @@ function AdminDashboard() {
                 <div style={styles.grid}>
                     {menuItems.map((item, index) => {
                         const IconComponent = item.icon;
-                        const isStore = item.isStore;
-                        
                         return (
                             <div
                                 key={index}
-                                style={isStore ? styles.storeCard : styles.card}
+                                style={styles.card}
                                 onClick={item.onClick}
-                                onMouseEnter={(e) => handleCardHover(e, true, isStore)}
-                                onMouseLeave={(e) => handleCardHover(e, false, isStore)}
+                                onMouseEnter={(e) => handleCardHover(e, true)}
+                                onMouseLeave={(e) => handleCardHover(e, false)}
                             >
-                                <div style={isStore ? styles.storeCardIcon : styles.cardIcon}>
+                                <div style={styles.cardIcon}>
                                     <IconComponent size={36} />
                                 </div>
-                                <h3 style={isStore ? styles.storeCardTitle : styles.cardTitle}>
-                                    {item.title}
-                                </h3>
-                                <p style={isStore ? styles.storeCardDescription : styles.cardDescription}>
-                                    {item.description}
-                                </p>
+                                <h3 style={styles.cardTitle}>{item.title}</h3>
+                                <p style={styles.cardDescription}>{item.description}</p>
                             </div>
                         );
                     })}
@@ -507,4 +359,4 @@ function AdminDashboard() {
     );
 }
 
-export default AdminDashboard;
+export default AdminOnlineStoreDashboard;
