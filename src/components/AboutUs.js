@@ -1,21 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Layers, Pencil, Award, DollarSign, Sparkles, Users, Target, Zap, Rocket } from 'lucide-react';
+import Footer from "./Footer"
 
-// Footer Component
-function Footer() {
-  return (
-    <footer style={{
-      background: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
-      color: '#fff',
-      padding: '40px 20px',
-      textAlign: 'center'
-    }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <p style={{ margin: '0', fontSize: '1rem' }}>© 2024 Dimensify3D. All rights reserved.</p>
-      </div>
-    </footer>
-  );
-}
 
 export default function AboutUs() {
   const [isVisible, setIsVisible] = useState({});
@@ -349,7 +335,7 @@ export default function AboutUs() {
           </div>
         </div>
       </section>
-      <Footer/>
+
 
       <style>{`
         * {
@@ -755,6 +741,7 @@ export default function AboutUs() {
           }
         }
       `}</style>
+      <Footer />
     </div>
   );
 }

@@ -44,7 +44,9 @@ export default function Footer() {
             <div style={styles.contactInfo}>
               <div style={styles.contactItem}>
                 <Mail size={18} style={styles.contactIcon} />
-                <span>print.dimensify3d@gmail.com</span>
+                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=print.dimensify3d@gmail.com" target="_blank" rel="noopener noreferrer" style={styles.emailLink} className="email-link">
+                  print.dimensify3d@gmail.com
+                </a>
               </div>
               <div style={styles.contactItem}>
                 <Phone size={18} style={styles.contactIcon} />
@@ -147,8 +149,14 @@ export default function Footer() {
         }
 
         @keyframes logo-glow {
-          0%, 100% { text-shadow: 0 0 10px rgba(42, 101, 197, 0.5), 0 0 20px rgba(42, 101, 197, 0.3); }
-          50% { text-shadow: 0 0 20px rgba(42, 101, 197, 0.8), 0 0 30px rgba(42, 101, 197, 0.5); }
+          0%, 100% { text-shadow: 0 0 15px rgba(0, 212, 255, 0.6), 0 0 25px rgba(0, 163, 255, 0.4); }
+          50% { text-shadow: 0 0 25px rgba(0, 212, 255, 0.9), 0 0 40px rgba(0, 163, 255, 0.6); }
+        }
+
+        /* Email Link Hover */
+        .email-link:hover {
+          color: #00d4ff;
+          transition: color 0.3s ease;
         }
 
         /* Footer Link Hover */
@@ -164,7 +172,7 @@ export default function Footer() {
           left: 0;
           width: 0;
           height: 2px;
-          background: linear-gradient(90deg, #2a65c5, #0a50b1);
+          background: linear-gradient(90deg, #00d4ff, #0066ff);
           transition: width 0.3s ease;
         }
 
@@ -173,7 +181,7 @@ export default function Footer() {
         }
 
         .footer-link:hover {
-          color: #2a65c5;
+          color: #00d4ff;
           transform: translateX(5px);
         }
 
@@ -287,7 +295,7 @@ const styles = {
   logo: {
     fontSize: '2rem',
     fontWeight: '700',
-    background: 'linear-gradient(316deg, rgb(42 101 197) 0%, rgb(10 80 177) 100%)',
+    background: 'linear-gradient(135deg, #00d4ff 0%, #00a3ff 50%, #0066ff 100%)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     backgroundClip: 'text',
@@ -317,7 +325,12 @@ const styles = {
     color: '#d0d0d0',
   },
   contactIcon: {
-    color: '#2a65c5',
+    color: '#00d4ff',
+  },
+  emailLink: {
+    color: '#d0d0d0',
+    textDecoration: 'none',
+    transition: 'color 0.3s ease',
   },
   sectionTitle: {
     fontSize: '1.3rem',
@@ -397,7 +410,7 @@ const styles = {
     margin: 0,
   },
   brandName: {
-    color: '#2a65c5',
+    color: '#00d4ff',
     fontWeight: '600',
   },
   madeWith: {

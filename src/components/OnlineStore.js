@@ -15,9 +15,10 @@ export default function ProductStore() {
   const [categories, setCategories] = useState(['All']);
   const [currentImageIndex, setCurrentImageIndex] = useState({});
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-  const [addingToCart, setAddingToCart] = useState({}); // Track loading state for each product
+  const [addingToCart, setAddingToCart] = useState({});
 
   const navigate = useNavigate();
+  
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -33,11 +34,10 @@ export default function ProductStore() {
       const result = await response.json();
       
       if (result.success) {
-        // Sort products by creation date (newest first)
         const sortedProducts = result.data.sort((a, b) => {
           const dateA = new Date(a.createdAt || a.dateAdded || 0);
           const dateB = new Date(b.createdAt || b.dateAdded || 0);
-          return dateB - dateA; // Descending order (newest first)
+          return dateB - dateA;
         });
         
         setProducts(sortedProducts);
@@ -99,6 +99,12 @@ export default function ProductStore() {
     return true;
   };
 
+  const handleProductClick = (product) => {
+    navigate('/itemdetails', { 
+      state: { product } 
+    });
+  };
+
   const handleAddToCart = async (product, e) => {
     e.stopPropagation();
 
@@ -106,7 +112,6 @@ export default function ProductStore() {
       return;
     }
 
-    // Set loading state for this specific product
     setAddingToCart(prev => ({ ...prev, [product.id]: true }));
 
     const phone = localStorage.getItem("dimensify3duserphoneNo");
@@ -153,19 +158,17 @@ export default function ProductStore() {
       console.error("Add to cart failed:", err);
       toast.error("Something went wrong while adding to cart");
     } finally {
-      // Clear loading state for this product after toast appears
       setAddingToCart(prev => ({ ...prev, [product.id]: false }));
     }
   };
 
- const handleBuyNow = (product, e) => {
+  const handleBuyNow = (product, e) => {
     e.stopPropagation();
     
     if (!checkUserLogin()) {
       return;
     }
 
-    // Transform product data to match cart item structure
     const cartItem = {
       id: product.id,
       name: product.modelName,
@@ -179,7 +182,6 @@ export default function ProductStore() {
       isCustomizable: product.isCustomizable || false,
     };
 
-    // Navigate to checkout with the single product as an array
     navigate('/onlinestorecheckout', { 
       state: { cartItems: [cartItem] } 
     });
@@ -233,370 +235,6 @@ export default function ProductStore() {
           overflow: hidden;
         }
 
-        .online-header::before {
-          content: "";
-          position: absolute;
-          top: -30%;
-          right: -10%;
-          width: 500px;
-          height: 500px;
-          background: radial-gradient(
-            circle,
-            rgba(255, 255, 255, 0.2) 0%,
-            rgba(255, 255, 255, 0.1) 40%,
-            transparent 70%
-          );
-          border-radius: 50%;
-          animation: online-morphFloat 8s ease-in-out infinite;
-          filter: blur(40px);
-        }
-
-        .online-header::after {
-          content: "";
-          position: absolute;
-          bottom: -30%;
-          left: -10%;
-          width: 600px;
-          height: 600px;
-          background: radial-gradient(
-            circle,
-            rgba(255, 255, 255, 0.15) 0%,
-            rgba(255, 255, 255, 0.08) 50%,
-            transparent 80%
-          );
-          border-radius: 50%;
-          animation: online-morphFloat 10s ease-in-out infinite reverse;
-          filter: blur(50px);
-        }
-
-        .online-header-glow {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: radial-gradient(
-              ellipse 80% 50% at 50% 50%,
-              rgba(255, 255, 255, 0.1) 0%,
-              transparent 50%
-            ),
-            linear-gradient(
-              90deg,
-              transparent 0%,
-              rgba(255, 255, 255, 0.05) 50%,
-              transparent 100%
-            );
-          animation: online-shimmer 3s ease-in-out infinite;
-        }
-
-        .online-header-particles {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          overflow: hidden;
-        }
-
-        .online-particle {
-          position: absolute;
-          pointer-events: none;
-        }
-
-        .online-particle:nth-child(1) {
-          width: 60px;
-          height: 60px;
-          left: 15%;
-          top: 20%;
-          animation: online-rotate3DCube 8s ease-in-out infinite;
-        }
-
-        .online-particle:nth-child(1)::before,
-        .online-particle:nth-child(1)::after {
-          content: "";
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          border: 2px solid rgba(255, 255, 255, 0.4);
-          border-radius: 4px;
-        }
-
-        .online-particle:nth-child(1)::before {
-          transform: rotateY(0deg) translateZ(30px);
-        }
-
-        .online-particle:nth-child(1)::after {
-          transform: rotateY(90deg) translateZ(30px);
-        }
-
-        @keyframes online-rotate3DCube {
-          0%,
-          100% {
-            transform: perspective(500px) rotateX(0deg) rotateY(0deg) translateY(0);
-          }
-          25% {
-            transform: perspective(500px) rotateX(180deg) rotateY(90deg)
-              translateY(-20px);
-          }
-          50% {
-            transform: perspective(500px) rotateX(180deg) rotateY(180deg) translateY(0);
-          }
-          75% {
-            transform: perspective(500px) rotateX(360deg) rotateY(270deg)
-              translateY(20px);
-          }
-        }
-
-        .online-particle:nth-child(2) {
-          width: 50px;
-          height: 50px;
-          left: 70%;
-          top: 30%;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-radius: 50%;
-          position: relative;
-          animation: online-rotate3DSphere 10s linear infinite;
-        }
-
-        .online-particle:nth-child(2)::before,
-        .online-particle:nth-child(2)::after {
-          content: "";
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-radius: 50%;
-        }
-
-        .online-particle:nth-child(2)::before {
-          width: 100%;
-          height: 40%;
-        }
-
-        .online-particle:nth-child(2)::after {
-          width: 40%;
-          height: 100%;
-        }
-
-        @keyframes online-rotate3DSphere {
-          0% {
-            transform: perspective(500px) rotateY(0deg) rotateX(0deg);
-          }
-          100% {
-            transform: perspective(500px) rotateY(360deg) rotateX(360deg);
-          }
-        }
-
-        .online-particle:nth-child(3) {
-          width: 0;
-          height: 0;
-          left: 85%;
-          top: 60%;
-          border-left: 30px solid transparent;
-          border-right: 30px solid transparent;
-          border-bottom: 50px solid rgba(255, 255, 255, 0.3);
-          animation: online-rotate3DPyramid 7s ease-in-out infinite;
-          transform-style: preserve-3d;
-        }
-
-        @keyframes online-rotate3DPyramid {
-          0%,
-          100% {
-            transform: perspective(500px) rotateY(0deg) rotateX(0deg);
-          }
-          50% {
-            transform: perspective(500px) rotateY(180deg) rotateX(180deg);
-          }
-        }
-
-        .online-particle:nth-child(4) {
-          width: 55px;
-          height: 55px;
-          left: 25%;
-          top: 65%;
-          border: 8px solid rgba(255, 255, 255, 0.25);
-          border-radius: 50%;
-          position: relative;
-          animation: online-rotate3DTorus 9s linear infinite;
-        }
-
-        .online-particle:nth-child(4)::before {
-          content: "";
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 70%;
-          height: 70%;
-          border: 6px solid rgba(255, 255, 255, 0.2);
-          border-radius: 50%;
-        }
-
-        @keyframes online-rotate3DTorus {
-          0% {
-            transform: perspective(500px) rotateX(75deg) rotateZ(0deg);
-          }
-          100% {
-            transform: perspective(500px) rotateX(75deg) rotateZ(360deg);
-          }
-        }
-
-        .online-particle:nth-child(5) {
-          width: 45px;
-          height: 45px;
-          left: 50%;
-          top: 15%;
-          position: relative;
-          animation: online-rotate3DOcta 11s ease-in-out infinite;
-          transform-style: preserve-3d;
-        }
-
-        .online-particle:nth-child(5)::before,
-        .online-particle:nth-child(5)::after {
-          content: "";
-          position: absolute;
-          width: 0;
-          height: 0;
-          border-left: 22.5px solid transparent;
-          border-right: 22.5px solid transparent;
-        }
-
-        .online-particle:nth-child(5)::before {
-          border-bottom: 35px solid rgba(255, 255, 255, 0.3);
-          top: 0;
-        }
-
-        .online-particle:nth-child(5)::after {
-          border-top: 35px solid rgba(255, 255, 255, 0.25);
-          bottom: 0;
-        }
-
-        @keyframes online-rotate3DOcta {
-          0%,
-          100% {
-            transform: perspective(500px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
-          }
-          33% {
-            transform: perspective(500px) rotateX(120deg) rotateY(120deg)
-              rotateZ(120deg);
-          }
-          66% {
-            transform: perspective(500px) rotateX(240deg) rotateY(240deg)
-              rotateZ(240deg);
-          }
-        }
-
-        .online-particle:nth-child(6) {
-          width: 40px;
-          height: 80px;
-          left: 40%;
-          top: 70%;
-          position: relative;
-          animation: online-rotate3DHelix 6s linear infinite;
-        }
-
-        .online-particle:nth-child(6)::before,
-        .online-particle:nth-child(6)::after {
-          content: "";
-          position: absolute;
-          width: 12px;
-          height: 12px;
-          background: rgba(255, 255, 255, 0.4);
-          border-radius: 50%;
-        }
-
-        .online-particle:nth-child(6)::before {
-          left: 0;
-          animation: online-helixMove1 3s ease-in-out infinite;
-        }
-
-        .online-particle:nth-child(6)::after {
-          right: 0;
-          animation: online-helixMove2 3s ease-in-out infinite;
-        }
-
-        @keyframes online-rotate3DHelix {
-          0% {
-            transform: perspective(500px) rotateY(0deg);
-          }
-          100% {
-            transform: perspective(500px) rotateY(360deg);
-          }
-        }
-
-        @keyframes online-helixMove1 {
-          0%,
-          100% {
-            top: 0;
-          }
-          50% {
-            top: 68px;
-          }
-        }
-
-        @keyframes online-helixMove2 {
-          0%,
-          100% {
-            top: 68px;
-          }
-          50% {
-            top: 0;
-          }
-        }
-
-        .online-header-wave {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          width: 100%;
-          height: 80px;
-          background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='rgba(255,255,255,0.1)'/%3E%3C/svg%3E")
-            repeat-x;
-          animation: online-waveMove 8s linear infinite;
-        }
-
-        @keyframes online-waveMove {
-          0% {
-            background-position: 0 0;
-          }
-          100% {
-            background-position: 1200px 0;
-          }
-        }
-
-        @keyframes online-morphFloat {
-          0%,
-          100% {
-            transform: translate(0, 0) scale(1) rotate(0deg);
-            border-radius: 50%;
-          }
-          25% {
-            transform: translate(30px, -30px) scale(1.1) rotate(90deg);
-            border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%;
-          }
-          50% {
-            transform: translate(-20px, -50px) scale(0.95) rotate(180deg);
-            border-radius: 60% 40% 40% 60% / 40% 60% 40% 60%;
-          }
-          75% {
-            transform: translate(-40px, -20px) scale(1.05) rotate(270deg);
-            border-radius: 45% 55% 55% 45% / 55% 45% 55% 45%;
-          }
-        }
-
-        @keyframes online-shimmer {
-          0%,
-          100% {
-            opacity: 0.3;
-            transform: translateX(-100%);
-          }
-          50% {
-            opacity: 0.6;
-            transform: translateX(100%);
-          }
-        }
-
         .online-header-title {
           color: white;
           font-size: 3rem;
@@ -607,19 +245,6 @@ export default function ProductStore() {
           text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
           position: relative;
           z-index: 2;
-          animation: online-slideDown 0.8s ease-out, online-textGlow 3s ease-in-out infinite;
-        }
-
-        @keyframes online-textGlow {
-          0%,
-          100% {
-            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3),
-              0 0 20px rgba(255, 255, 255, 0.3);
-          }
-          50% {
-            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3),
-              0 0 40px rgba(255, 255, 255, 0.6), 0 0 60px rgba(255, 255, 255, 0.4);
-          }
         }
 
         .online-header-subtitle {
@@ -631,27 +256,6 @@ export default function ProductStore() {
           letter-spacing: 1px;
           position: relative;
           z-index: 2;
-          animation: online-fadeIn 1s ease-out 0.3s both;
-        }
-
-        @keyframes online-slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes online-fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
         }
 
         .online-search-section {
@@ -737,41 +341,11 @@ export default function ProductStore() {
           background: white;
           max-width: 350px;
           margin: 0 auto;
-          animation: online-fadeInUp 0.6s ease-out backwards;
-        }
-
-        .online-product-card:nth-child(1) {
-          animation-delay: 0.1s;
-        }
-        .online-product-card:nth-child(2) {
-          animation-delay: 0.2s;
-        }
-        .online-product-card:nth-child(3) {
-          animation-delay: 0.3s;
-        }
-        .online-product-card:nth-child(4) {
-          animation-delay: 0.4s;
-        }
-        .online-product-card:nth-child(5) {
-          animation-delay: 0.5s;
-        }
-        .online-product-card:nth-child(6) {
-          animation-delay: 0.6s;
-        }
-
-        @keyframes online-fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          cursor: pointer;
         }
 
         .online-product-card:hover {
-          transform: translateY(-8px);
+          transform: translateY(-4px);
           box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
         }
 
@@ -881,18 +455,6 @@ export default function ProductStore() {
           align-items: center;
           gap: 0.3rem;
           margin-bottom: 0.6rem;
-          animation: online-slideInLeft 0.5s ease-out;
-        }
-
-        @keyframes online-slideInLeft {
-          from {
-            opacity: 0;
-            transform: translateX(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
         }
 
         .online-product-title {
@@ -925,21 +487,6 @@ export default function ProductStore() {
           font-size: 1.5rem;
           font-weight: 700;
           color: rgb(42, 101, 197);
-          animation: online-pricePopIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        @keyframes online-pricePopIn {
-          0% {
-            transform: scale(0.8);
-            opacity: 0;
-          }
-          50% {
-            transform: scale(1.1);
-          }
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
         }
 
         .online-original-price {
@@ -957,41 +504,6 @@ export default function ProductStore() {
           text-align: center;
           position: relative;
           overflow: hidden;
-          animation: online-pulseGlow 2s ease-in-out infinite;
-        }
-
-        .online-price-on-checkout::before {
-          content: "";
-          position: absolute;
-          top: -50%;
-          left: -50%;
-          width: 200%;
-          height: 200%;
-          background: radial-gradient(
-            circle,
-            rgba(42, 101, 197, 0.1) 0%,
-            transparent 70%
-          );
-          animation: online-rotateGlow 4s linear infinite;
-        }
-
-        @keyframes online-pulseGlow {
-          0%,
-          100% {
-            box-shadow: 0 0 10px rgba(42, 101, 197, 0.2);
-          }
-          50% {
-            box-shadow: 0 0 20px rgba(42, 101, 197, 0.4);
-          }
-        }
-
-        @keyframes online-rotateGlow {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
         }
 
         .online-price-on-checkout-title {
@@ -1001,8 +513,6 @@ export default function ProductStore() {
           text-transform: uppercase;
           letter-spacing: 0.5px;
           margin-bottom: 0.3rem;
-          position: relative;
-          z-index: 1;
         }
 
         .online-price-on-checkout-text {
@@ -1010,8 +520,6 @@ export default function ProductStore() {
           font-weight: 600;
           color: rgb(10, 80, 177);
           margin: 0;
-          position: relative;
-          z-index: 1;
         }
 
         .online-customize-box {
@@ -1139,7 +647,6 @@ export default function ProductStore() {
           align-items: center;
           justify-content: center;
           z-index: 9999;
-          animation: online-fadeIn 0.3s ease-out;
           backdrop-filter: blur(5px);
         }
 
@@ -1151,18 +658,6 @@ export default function ProductStore() {
           max-width: 450px;
           width: 90%;
           text-align: center;
-          animation: online-slideUp 0.3s ease-out;
-        }
-
-        @keyframes online-slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(50px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
         }
 
         .online-login-popup h3 {
@@ -1222,6 +717,48 @@ export default function ProductStore() {
           transform: translateY(-2px);
         }
 
+        .online-header-nav-btn {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background: rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(10px);
+          border: 2px solid rgba(255, 255, 255, 0.4);
+          color: white;
+          padding: 0.75rem 1.25rem;
+          border-radius: 12px;
+          font-weight: 600;
+          font-size: 0.95rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          z-index: 10;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .online-header-nav-btn:hover {
+          background: rgba(255, 255, 255, 0.95);
+          border-color: white;
+          color: rgb(42, 101, 197);
+          transform: translateY(-50%) scale(1.05);
+        }
+
+        .online-header-back-btn {
+          left: 2rem;
+        }
+
+        .online-header-cart-btn {
+          right: 2rem;
+        }
+
+        .online-header-cart-btn .cart-icon-wrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+
         @media (max-width: 768px) {
           .online-header-title {
             font-size: 2rem;
@@ -1254,71 +791,7 @@ export default function ProductStore() {
           .online-popup-buttons {
             flex-direction: column;
           }
-        }
 
-        .online-header-nav-btn {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          background: rgba(255, 255, 255, 0.2);
-          backdrop-filter: blur(10px);
-          border: 2px solid rgba(255, 255, 255, 0.4);
-          color: white;
-          padding: 0.75rem 1.25rem;
-          border-radius: 12px;
-          font-weight: 600;
-          font-size: 0.95rem;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          z-index: 10;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.1);
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .online-header-nav-btn:hover {
-          background: rgba(255, 255, 255, 0.95);
-          border-color: white;
-          color: rgb(42, 101, 197);
-          transform: translateY(-50%) scale(1.08);
-          box-shadow: 0 8px 30px rgba(255, 255, 255, 0.5), 
-                      0 0 40px rgba(255, 255, 255, 0.4),
-                      inset 0 0 20px rgba(42, 101, 197, 0.1);
-          text-shadow: none;
-        }
-
-        .online-header-nav-btn:active {
-          transform: translateY(-50%) scale(1.02);
-        }
-
-        .online-header-back-btn {
-          left: 2rem;
-          animation: online-pulseGlowBtn 3s ease-in-out infinite;
-        }
-
-        .online-header-cart-btn {
-          right: 2rem;
-          animation: online-pulseGlowBtn 3s ease-in-out infinite 1.5s;
-        }
-
-        @keyframes online-pulseGlowBtn {
-          0%, 100% {
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.1);
-          }
-          50% {
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 255, 255, 0.3);
-          }
-        }
-
-        .online-header-cart-btn .cart-icon-wrapper {
-          position: relative;
-          display: flex;
-          align-items: center;
-        }
-
-        @media (max-width: 768px) {
           .online-header-nav-btn {
             padding: 0.6rem 1rem;
             font-size: 0.85rem;
@@ -1326,17 +799,16 @@ export default function ProductStore() {
 
           .online-header-back-btn {
             left: 1rem;
-            top:  12rem;
+            top: 12rem;
           }
 
           .online-header-cart-btn {
             right: 1rem;
-            top:  12rem;
+            top: 12rem;
           }
 
           .online-header-nav-btn span {
             display: none;
-            
           }
         }
       `}</style>
@@ -1356,11 +828,6 @@ export default function ProductStore() {
         />
 
         <div className="online-header">
-          <div className="online-header-particles">
-            {[...Array(6)].map((_, i) => <div key={i} className="online-particle"></div>)}
-          </div>
-          <div className="online-header-wave"></div>
-          
           <button className="online-header-nav-btn online-header-back-btn" onClick={handleBackClick}>
             <ArrowLeft size={20} />
             <span>Back</span>
@@ -1444,7 +911,7 @@ export default function ProductStore() {
                 
                 return (
                   <div key={product.id} className="col-12 col-sm-6 col-lg-4">
-                    <div className="online-product-card">
+                    <div className="online-product-card" onClick={() => handleProductClick(product)}>
                       <div className="online-image-container">
                         <div className="online-product-image">
                           <img src={product.images[currentIndex]} alt={product.modelName} />

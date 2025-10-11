@@ -32,6 +32,7 @@ import AdminOnlineStoreOrderUpdate from "./components/AdminOnlineStoreOrderUpdat
 import AdminOnlineStoreOrderPrint from "./components/AdminOnlineStoreOrderPrint";
 import AdminTransaction from "./components/AdminTransaction";
 import Account from "./components/Account";
+import ItemDetails from "./components/ItemDetails";
 
 // Protected Route Component
 const ProtectedAdminRoute = ({ children }) => {
@@ -67,6 +68,7 @@ function App() {
           <Route path="/about" element={<AboutUs />} />
           <Route path="/onlinestorecheckout" element={<OnlineStoreCheckout />} />
           <Route path="/account" element={<Account/>} />
+          <Route path="/itemdetails" element={<ItemDetails/>} />
 
           {/* Protected Admin Routes */}
           <Route 

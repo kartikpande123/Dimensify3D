@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge, Nav, Dropdown, Button, Modal, Form } from 'react-bootstrap';
-import { User, ShoppingCart, Settings, Headphones, Calendar, MapPin, Package, Filter, HelpCircle, MessageSquare, Edit } from 'lucide-react';
+import { User, ShoppingCart, Settings, Headphones, Calendar, MapPin, Package, Filter, HelpCircle, MessageSquare, Edit, Clock, CheckCircle, ArrowLeft } from 'lucide-react';
 import API_BASE_URL from './apiConfig';
 
 const AccountSidebar = () => {
@@ -21,9 +21,32 @@ const AccountSidebar = () => {
     landmark: ''
   });
   const [updating, setUpdating] = useState(false);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    fetchUserData();
+    const userPhone = localStorage.getItem("dimensify3duserphoneNo");
+    if (!userPhone) {
+      setShowLoginPopup(true);
+      setIsLoggedIn(false);
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 4000);
+    } else {
+      setIsLoggedIn(true);
+      fetchUserData();
+    }
+
+    // Check if mobile device
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const fetchUserData = async () => {
@@ -60,6 +83,11 @@ const AccountSidebar = () => {
 
   const handleSupportClick = () => {
     setActiveTab('support');
+  };
+
+  // Custom navigation handler for better click area
+  const handleNavClick = (tab) => {
+    setActiveTab(tab);
   };
 
   const handleUpdateAddress = (addressKey, address) => {
@@ -174,7 +202,63 @@ const AccountSidebar = () => {
     }, {});
   };
 
-  if (loading) {
+  // Login Popup Styles
+  const popupStyles = {
+    modal: {
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      display: showLoginPopup ? "flex" : "none",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 9999,
+    },
+    modalContent: {
+      backgroundColor: "white",
+      borderRadius: "16px",
+      overflow: "hidden",
+      boxShadow: "0 20px 40px rgba(0, 0, 0, 0.3)",
+      maxWidth: "400px",
+      width: "90%",
+      animation: "fadeInScale 0.3s ease-out",
+    },
+    modalHeader: {
+      background: "linear-gradient(135deg, #2a65c5 0%, #1e4a8c 50%, #0a50b1 100%)",
+      color: "white",
+      padding: "1.5rem",
+      display: "flex",
+      alignItems: "center",
+    },
+    modalBody: {
+      padding: "2rem",
+      textAlign: "center",
+    },
+    modalFooter: {
+      padding: "1rem 2rem 2rem",
+      textAlign: "center",
+    },
+    submitButton: {
+      background: "linear-gradient(135deg, #2a65c5 0%, #1e4a8c 50%, #0a50b1 100%)",
+      color: "white",
+      border: "none",
+      borderRadius: "12px",
+      padding: "16px 32px",
+      fontSize: "18px",
+      fontWeight: "600",
+      cursor: "pointer",
+      transition: "all 0.3s ease",
+      boxShadow: "0 8px 16px rgba(42, 101, 197, 0.3)",
+      display: "flex",
+      alignItems: "center",
+      gap: "0.5rem",
+      margin: "0 auto",
+    },
+  };
+
+  if (loading && isLoggedIn) {
     return (
       <div style={styles.loadingContainer}>
         <div style={styles.spinner}></div>
@@ -183,7 +267,7 @@ const AccountSidebar = () => {
     );
   }
 
-  if (error) {
+  if (error && isLoggedIn) {
     return (
       <div style={styles.errorContainer}>
         <Container style={styles.container}>
@@ -200,395 +284,431 @@ const AccountSidebar = () => {
     );
   }
 
-  if (!userData) return null;
+  if (!userData && isLoggedIn) return null;
 
-  const filteredOnlineOrders = filterOrders(userData.onlinestoreorders);
-  const filteredCustomOrders = filterOrders(userData.orders);
+  const filteredOnlineOrders = filterOrders(userData?.onlinestoreorders);
+  const filteredCustomOrders = filterOrders(userData?.orders);
 
   return (
     <div style={styles.body}>
-      <Container style={styles.container}>
-        <Row>
-          <Col lg={3} md={4} style={styles.sidebarCol}>
-            <Card style={styles.sidebarCard}>
-              <div style={styles.userProfile}>
-                <div style={styles.avatarWrapper}>
-                  <div style={styles.avatar}>
-                    {userData.name ? userData.name.charAt(0).toUpperCase() : 'U'}
+      {/* Login Modal */}
+      <div style={popupStyles.modal}>
+        <div style={popupStyles.modalContent}>
+          <div style={popupStyles.modalHeader}>
+            <Clock size={24} style={{ marginRight: "0.5rem" }} />
+            <h3 style={{ margin: 0, fontWeight: "600" }}>Login Required</h3>
+          </div>
+          <div style={popupStyles.modalBody}>
+            <CheckCircle size={48} color="#2a65c5" style={{ animation: "pulse 2s ease-in-out infinite", marginBottom: "1rem" }} />
+            <p style={{ margin: 0, color: "#64748b" }}>Please login to access your account.</p>
+          </div>
+          <div style={popupStyles.modalFooter}>
+            <button
+              style={{...popupStyles.submitButton, padding: "12px 24px"}}
+              onClick={() => (window.location.href = "/login")}
+            >
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {isLoggedIn && (
+        <Container style={styles.container}>
+          <Row>
+            <Col lg={3} md={4} style={styles.sidebarCol}>
+              <Card style={styles.sidebarCard}>
+                <div style={styles.userProfile}>
+                  <div style={styles.avatarWrapper}>
+                    <div style={styles.avatar}>
+                      {userData?.name ? userData.name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                    <div style={styles.statusDot}></div>
                   </div>
-                  <div style={styles.statusDot}></div>
+                  <h5 style={styles.userName}>{userData?.name || 'User'}</h5>
+                  <p style={styles.userEmail}>{userData?.email}</p>
                 </div>
-                <h5 style={styles.userName}>{userData.name || 'User'}</h5>
-                <p style={styles.userEmail}>{userData.email}</p>
-              </div>
-              
-              <div style={styles.navContainer}>
-                <Nav variant="pills" className="flex-column">
-                  <Nav.Item>
-                    <Nav.Link 
-                      active={activeTab === 'account'}
-                      onClick={() => setActiveTab('account')}
-                      style={{...styles.navLink, ...(activeTab === 'account' ? styles.navLinkActive : {})}}
+                
+                <div style={styles.navContainer}>
+                  {/* Custom Navigation with better click handling */}
+                  <div style={styles.navWrapper}>
+                    <div 
+                      style={{
+                        ...styles.navItem,
+                        ...(activeTab === 'account' ? styles.navItemActive : {})
+                      }}
+                      onClick={() => handleNavClick('account')}
+                      className="nav-item-custom"
                     >
                       <User size={18} style={styles.navIcon} />
                       <span>My Account</span>
-                    </Nav.Link>
-                  </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link 
-                      active={activeTab === 'onlineOrders'}
-                      onClick={() => setActiveTab('onlineOrders')}
-                      style={{...styles.navLink, ...(activeTab === 'onlineOrders' ? styles.navLinkActive : {})}}
+                    </div>
+                    
+                    <div 
+                      style={{
+                        ...styles.navItem,
+                        ...(activeTab === 'onlineOrders' ? styles.navItemActive : {})
+                      }}
+                      onClick={() => handleNavClick('onlineOrders')}
+                      className="nav-item-custom"
                     >
                       <ShoppingCart size={18} style={styles.navIcon} />
                       <span>Online Store Orders</span>
-                    </Nav.Link>
-                  </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link 
-                      active={activeTab === 'customOrders'}
-                      onClick={() => setActiveTab('customOrders')}
-                      style={{...styles.navLink, ...(activeTab === 'customOrders' ? styles.navLinkActive : {})}}
+                    </div>
+                    
+                    <div 
+                      style={{
+                        ...styles.navItem,
+                        ...(activeTab === 'customOrders' ? styles.navItemActive : {})
+                      }}
+                      onClick={() => handleNavClick('customOrders')}
+                      className="nav-item-custom"
                     >
                       <Settings size={18} style={styles.navIcon} />
                       <span>Custom Model Orders</span>
-                    </Nav.Link>
-                  </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link 
-                      active={activeTab === 'support'}
-                      onClick={handleSupportClick}
-                      style={{...styles.navLink, ...(activeTab === 'support' ? styles.navLinkActive : {})}}
+                    </div>
+                    
+                    <div 
+                      style={{
+                        ...styles.navItem,
+                        ...(activeTab === 'support' ? styles.navItemActive : {})
+                      }}
+                      onClick={() => handleNavClick('support')}
+                      className="nav-item-custom"
                     >
                       <Headphones size={18} style={styles.navIcon} />
                       <span>Support</span>
-                    </Nav.Link>
-                  </Nav.Item>
-                </Nav>
-              </div>
-            </Card>
-          </Col>
-
-          <Col lg={9} md={8}>
-            {/* My Account Tab */}
-            {activeTab === 'account' && (
-              <Card style={styles.contentCard}>
-                <div style={styles.cardHeader}>
-                  <h4 style={styles.cardTitle}>
-                    <User size={24} style={styles.headerIcon} />
-                    My Account Details
-                  </h4>
+                    </div>
+                  </div>
                 </div>
-                <Card.Body style={styles.cardBody}>
-                  <Row>
-                    <Col md={6}>
-                      <div style={styles.detailItem}>
-                        <label style={styles.detailLabel}>Full Name</label>
-                        <p style={styles.detailValue}>{userData.name}</p>
-                      </div>
-                      <div style={styles.detailItem}>
-                        <label style={styles.detailLabel}>Email Address</label>
-                        <p style={styles.detailValue}>{userData.email}</p>
-                      </div>
-                      <div style={styles.detailItem}>
-                        <label style={styles.detailLabel}>Phone Number</label>
-                        <p style={styles.detailValue}>{userData.phone}</p>
-                      </div>
-                    </Col>
-                    <Col md={6}>
-                      <div style={styles.detailItem}>
-                        <label style={styles.detailLabel}>User ID</label>
-                        <p style={styles.detailValue}>{userData.userId}</p>
-                      </div>
-                      <div style={styles.detailItem}>
-                        <label style={styles.detailLabel}>Account Status</label>
-                        <Badge bg="success" style={styles.statusBadge}>
-                          {userData.status}
-                        </Badge>
-                      </div>
-                      <div style={styles.detailItem}>
-                        <label style={styles.detailLabel}>Member Since</label>
-                        <p style={styles.detailValue}>
-                          <Calendar size={14} style={{marginRight: '6px', verticalAlign: 'middle'}} />
-                          {new Date(userData.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                        </p>
-                      </div>
-                    </Col>
-                  </Row>
+              </Card>
+            </Col>
 
-                  {userData.addresses && Object.keys(userData.addresses).length > 0 && (
-                    <div style={styles.section}>
-                      <h5 style={styles.sectionTitle}>
-                        <MapPin size={20} style={{marginRight: '8px', verticalAlign: 'middle'}} />
-                        Saved Addresses
-                      </h5>
+            <Col lg={9} md={8} style={isMobile ? styles.mobileContentCol : {}}>
+              {/* Mobile Scrollable Container */}
+              <div style={isMobile ? styles.mobileScrollContainer : {}}>
+                
+                {/* My Account Tab */}
+                {activeTab === 'account' && (
+                  <Card style={styles.contentCard}>
+                    <div style={styles.cardHeader}>
+                      <h4 style={styles.cardTitle}>
+                        <User size={24} style={styles.headerIcon} />
+                        My Account Details
+                      </h4>
+                    </div>
+                    <Card.Body style={styles.cardBody}>
                       <Row>
-                        {Object.entries(userData.addresses).map(([key, address]) => (
-                          <Col md={6} key={key}>
-                            <Card style={styles.addressCard}>
-                              <Card.Body>
-                                <div style={styles.addressHeader}>
-                                  <h6 style={styles.addressName}>{address.name}</h6>
-                                  <Button 
-                                    variant="outline-primary" 
-                                    size="sm"
-                                    onClick={() => handleUpdateAddress(key, address)}
-                                    style={styles.updateButton}
-                                  >
-                                    <Edit size={14} style={{marginRight: '4px'}} />
-                                    Update
-                                  </Button>
-                                </div>
-                                <p style={styles.addressLine}>{address.addressLine1}</p>
-                                {address.addressLine2 && <p style={styles.addressLine}>{address.addressLine2}</p>}
-                                <p style={styles.addressLine}>
-                                  {address.city}, {address.state} - {address.pincode}
-                                </p>
-                                <p style={styles.addressLandmark}>
-                                  <MapPin size={12} style={{marginRight: '4px'}} />
-                                  {address.landmark}
-                                </p>
-                              </Card.Body>
-                            </Card>
-                          </Col>
-                        ))}
+                        <Col md={6}>
+                          <div style={styles.detailItem}>
+                            <label style={styles.detailLabel}>Full Name</label>
+                            <p style={styles.detailValue}>{userData?.name}</p>
+                          </div>
+                          <div style={styles.detailItem}>
+                            <label style={styles.detailLabel}>Email Address</label>
+                            <p style={styles.detailValue}>{userData?.email}</p>
+                          </div>
+                          <div style={styles.detailItem}>
+                            <label style={styles.detailLabel}>Phone Number</label>
+                            <p style={styles.detailValue}>{userData?.phone}</p>
+                          </div>
+                        </Col>
+                        <Col md={6}>
+                          <div style={styles.detailItem}>
+                            <label style={styles.detailLabel}>User ID</label>
+                            <p style={styles.detailValue}>{userData?.userId}</p>
+                          </div>
+                          <div style={styles.detailItem}>
+                            <label style={styles.detailLabel}>Account Status</label>
+                            <Badge bg="success" style={styles.statusBadge}>
+                              {userData?.status}
+                            </Badge>
+                          </div>
+                          <div style={styles.detailItem}>
+                            <label style={styles.detailLabel}>Member Since</label>
+                            <p style={styles.detailValue}>
+                              <Calendar size={14} style={{marginRight: '6px', verticalAlign: 'middle'}} />
+                              {new Date(userData?.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </p>
+                          </div>
+                        </Col>
                       </Row>
-                    </div>
-                  )}
-                </Card.Body>
-              </Card>
-            )}
 
-            {/* Online Store Orders Tab */}
-            {activeTab === 'onlineOrders' && (
-              <Card style={styles.contentCard}>
-                <div style={styles.cardHeader}>
-                  <div style={styles.headerContent}>
-                    <h4 style={styles.cardTitle}>
-                      <ShoppingCart size={24} style={styles.headerIcon} />
-                      Online Store Orders
-                    </h4>
-                    <Dropdown>
-                      <Dropdown.Toggle variant="light" style={styles.filterButton}>
-                        <Filter size={16} style={{marginRight: '6px'}} />
-                        {orderFilter === 'all' ? 'All Time' : 
-                         orderFilter === '30days' ? 'Last 30 Days' : 
-                         orderFilter === '3months' ? 'Last 3 Months' : 'Last Year'}
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu>
-                        <Dropdown.Item onClick={() => setOrderFilter('all')}>All Time</Dropdown.Item>
-                        <Dropdown.Item onClick={() => setOrderFilter('30days')}>Last 30 Days</Dropdown.Item>
-                        <Dropdown.Item onClick={() => setOrderFilter('3months')}>Last 3 Months</Dropdown.Item>
-                        <Dropdown.Item onClick={() => setOrderFilter('1year')}>Last Year</Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  </div>
-                </div>
-                <Card.Body style={styles.cardBody}>
-                  {filteredOnlineOrders && Object.keys(filteredOnlineOrders).length > 0 ? (
-                    Object.entries(filteredOnlineOrders).map(([orderKey, order]) => (
-                      <Card key={orderKey} style={styles.orderCard}>
-                        <Card.Body style={styles.orderCardBody}>
+                      {userData?.addresses && Object.keys(userData.addresses).length > 0 && (
+                        <div style={styles.section}>
+                          <h5 style={styles.sectionTitle}>
+                            <MapPin size={20} style={{marginRight: '8px', verticalAlign: 'middle'}} />
+                            Saved Addresses
+                          </h5>
                           <Row>
-                            <Col md={8}>
-                              <div style={styles.orderHeader}>
-                                <h6 style={styles.orderId}>
-                                  <Package size={16} style={{marginRight: '6px'}} />
-                                  Order #{order.orderId}
-                                </h6>
-                                <Badge bg={order.status === 'paid' ? 'success' : 'warning'} style={styles.orderStatusBadge}>
-                                  {order.status}
-                                </Badge>
-                              </div>
-                              <p style={styles.orderDate}>
-                                <Calendar size={14} style={{marginRight: '6px'}} />
-                                {new Date(order.orderTimestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                              </p>
-                              <div style={styles.orderItems}>
-                                {order.items.map((item, index) => (
-                                  <div key={index} style={styles.orderItemCard}>
-                                    <img src={item.image} alt={item.name} style={styles.itemImage} />
-                                    <span style={styles.itemName}>{item.name}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </Col>
-                            <Col md={4} style={styles.orderSummary}>
-                              <div style={styles.priceItem}>
-                                <span style={styles.priceLabel}>Subtotal:</span>
-                                <span style={styles.priceValue}>₹{order.subtotal}</span>
-                              </div>
-                              <div style={styles.priceItem}>
-                                <span style={styles.priceLabel}>Delivery:</span>
-                                <span style={styles.priceValue}>₹{order.deliveryCharge}</span>
-                              </div>
-                              <div style={styles.totalPrice}>
-                                <strong>Total Amount:</strong>
-                                <strong style={styles.totalAmount}>₹{order.totalPrice}</strong>
-                              </div>
-                            </Col>
-                          </Row>
-                        </Card.Body>
-                      </Card>
-                    ))
-                  ) : (
-                    <div style={styles.noData}>
-                      <Package size={48} style={styles.noDataIcon} />
-                      <p style={styles.noDataText}>No orders found for the selected period</p>
-                    </div>
-                  )}
-                </Card.Body>
-              </Card>
-            )}
-
-            {/* Custom Model Orders Tab */}
-            {activeTab === 'customOrders' && (
-              <Card style={styles.contentCard}>
-                <div style={styles.cardHeader}>
-                  <div style={styles.headerContent}>
-                    <h4 style={styles.cardTitle}>
-                      <Settings size={24} style={styles.headerIcon} />
-                      Custom Model Orders
-                    </h4>
-                    <Dropdown>
-                      <Dropdown.Toggle variant="light" style={styles.filterButton}>
-                        <Filter size={16} style={{marginRight: '6px'}} />
-                        {orderFilter === 'all' ? 'All Time' : 
-                         orderFilter === '30days' ? 'Last 30 Days' : 
-                         orderFilter === '3months' ? 'Last 3 Months' : 'Last Year'}
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu>
-                        <Dropdown.Item onClick={() => setOrderFilter('all')}>All Time</Dropdown.Item>
-                        <Dropdown.Item onClick={() => setOrderFilter('30days')}>Last 30 Days</Dropdown.Item>
-                        <Dropdown.Item onClick={() => setOrderFilter('3months')}>Last 3 Months</Dropdown.Item>
-                        <Dropdown.Item onClick={() => setOrderFilter('1year')}>Last Year</Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  </div>
-                </div>
-                <Card.Body style={styles.cardBody}>
-                  {filteredCustomOrders && Object.keys(filteredCustomOrders).length > 0 ? (
-                    Object.entries(filteredCustomOrders).map(([orderKey, order]) => (
-                      <Card key={orderKey} style={styles.orderCard}>
-                        <Card.Body style={styles.orderCardBody}>
-                          <Row>
-                            <Col md={8}>
-                              <div style={styles.orderHeader}>
-                                <h6 style={styles.orderId}>
-                                  <Package size={16} style={{marginRight: '6px'}} />
-                                  Order #{order.orderId}
-                                </h6>
-                                <Badge bg="info" style={styles.orderStatusBadge}>
-                                  {order.status}
-                                </Badge>
-                              </div>
-                              <p style={styles.orderDate}>
-                                <Calendar size={14} style={{marginRight: '6px'}} />
-                                {new Date(order.orderTimestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                              </p>
-                              <div style={styles.filesSection}>
-                                <strong style={styles.filesTitle}>Uploaded Files ({order.fileCount}):</strong>
-                                <div style={styles.filesList}>
-                                  {order.files.map((file, index) => (
-                                    <div key={index} style={styles.fileItem}>
-                                      <span style={styles.fileIcon}>📄</span>
-                                      <span style={styles.fileName}>{file.originalName}</span>
+                            {Object.entries(userData.addresses).map(([key, address]) => (
+                              <Col md={6} key={key}>
+                                <Card style={styles.addressCard}>
+                                  <Card.Body>
+                                    <div style={styles.addressHeader}>
+                                      <h6 style={styles.addressName}>{address.name}</h6>
+                                      <Button 
+                                        variant="outline-primary" 
+                                        size="sm"
+                                        onClick={() => handleUpdateAddress(key, address)}
+                                        style={styles.updateButton}
+                                      >
+                                        <Edit size={14} style={{marginRight: '4px'}} />
+                                        Update
+                                      </Button>
                                     </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </Col>
-                            <Col md={4} style={styles.orderSummary}>
-                              <div style={styles.priceItem}>
-                                <span style={styles.priceLabel}>Subtotal:</span>
-                                <span style={styles.priceValue}>₹{order.subtotal}</span>
-                              </div>
-                              <div style={styles.priceItem}>
-                                <span style={styles.priceLabel}>Delivery:</span>
-                                <span style={styles.priceValue}>₹{order.deliveryCharge}</span>
-                              </div>
-                              {order.discountAmount && (
-                                <div style={styles.priceItem}>
-                                  <span style={styles.priceLabel}>Discount:</span>
-                                  <span style={styles.discountValue}>-₹{order.discountAmount}</span>
-                                </div>
-                              )}
-                              <div style={styles.totalPrice}>
-                                <strong>Total Amount:</strong>
-                                <strong style={styles.totalAmount}>₹{order.totalPrice}</strong>
-                              </div>
-                            </Col>
+                                    <p style={styles.addressLine}>{address.addressLine1}</p>
+                                    {address.addressLine2 && <p style={styles.addressLine}>{address.addressLine2}</p>}
+                                    <p style={styles.addressLine}>
+                                      {address.city}, {address.state} - {address.pincode}
+                                    </p>
+                                    <p style={styles.addressLandmark}>
+                                      <MapPin size={12} style={{marginRight: '4px'}} />
+                                      {address.landmark}
+                                    </p>
+                                  </Card.Body>
+                                </Card>
+                              </Col>
+                            ))}
                           </Row>
-                        </Card.Body>
-                      </Card>
-                    ))
-                  ) : (
-                    <div style={styles.noData}>
-                      <Settings size={48} style={styles.noDataIcon} />
-                      <p style={styles.noDataText}>No custom orders found for the selected period</p>
-                    </div>
-                  )}
-                </Card.Body>
-              </Card>
-            )}
+                        </div>
+                      )}
+                    </Card.Body>
+                  </Card>
+                )}
 
-            {/* Support Tab */}
-            {activeTab === 'support' && (
-              <Card style={styles.contentCard}>
-                <div style={styles.cardHeader}>
-                  <h4 style={styles.cardTitle}>
-                    <Headphones size={24} style={styles.headerIcon} />
-                    Support & Assistance
-                  </h4>
-                </div>
-                <Card.Body style={styles.cardBody}>
-                  <p style={styles.supportIntro}>How can we help you today? Choose from the options below:</p>
-                  <Row>
-                    <Col md={6}>
-                      <Card 
-                        style={styles.supportCard}
-                        onClick={() => window.location.href = '/help'}
-                      >
-                        <Card.Body style={styles.supportCardBody}>
-                          <div style={styles.supportIconWrapper}>
-                            <HelpCircle size={40} style={styles.supportIcon} />
-                          </div>
-                          <h5 style={styles.supportCardTitle}>Help Center</h5>
-                          <p style={styles.supportCardText}>
-                            Find answers to frequently asked questions, tutorials, and step-by-step guides to help you navigate our platform.
-                          </p>
-                          <button style={styles.supportButton}>
-                            Visit Help Center →
-                          </button>
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                    <Col md={6}>
-                      <Card 
-                        style={styles.supportCard}
-                        onClick={() => window.location.href = '/consultancy'}
-                      >
-                        <Card.Body style={styles.supportCardBody}>
-                          <div style={styles.supportIconWrapper}>
-                            <MessageSquare size={40} style={styles.supportIcon} />
-                          </div>
-                          <h5 style={styles.supportCardTitle}>Consultancy</h5>
-                          <p style={styles.supportCardText}>
-                            Get personalized consultation from our experts for your custom 3D printing projects and design requirements.
-                          </p>
-                          <button style={styles.supportButton}>
-                            Request Consultation →
-                          </button>
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
-            )}
-          </Col>
-        </Row>
-      </Container>
+                {/* Online Store Orders Tab */}
+                {activeTab === 'onlineOrders' && (
+                  <Card style={styles.contentCard}>
+                    <div style={styles.cardHeader}>
+                      <div style={styles.headerContent}>
+                        <h4 style={styles.cardTitle}>
+                          <ShoppingCart size={24} style={styles.headerIcon} />
+                          Online Store Orders
+                        </h4>
+                        <Dropdown>
+                          <Dropdown.Toggle variant="light" style={styles.filterButton}>
+                            <Filter size={16} style={{marginRight: '6px'}} />
+                            {orderFilter === 'all' ? 'All Time' : 
+                             orderFilter === '30days' ? 'Last 30 Days' : 
+                             orderFilter === '3months' ? 'Last 3 Months' : 'Last Year'}
+                          </Dropdown.Toggle>
+                          <Dropdown.Menu>
+                            <Dropdown.Item onClick={() => setOrderFilter('all')}>All Time</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setOrderFilter('30days')}>Last 30 Days</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setOrderFilter('3months')}>Last 3 Months</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setOrderFilter('1year')}>Last Year</Dropdown.Item>
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </div>
+                    </div>
+                    <Card.Body style={styles.cardBody}>
+                      {filteredOnlineOrders && Object.keys(filteredOnlineOrders).length > 0 ? (
+                        Object.entries(filteredOnlineOrders).map(([orderKey, order]) => (
+                          <Card key={orderKey} style={styles.orderCard}>
+                            <Card.Body style={styles.orderCardBody}>
+                              <Row>
+                                <Col md={8}>
+                                  <div style={styles.orderHeader}>
+                                    <h6 style={styles.orderId}>
+                                      <Package size={16} style={{marginRight: '6px'}} />
+                                      Order #{order.orderId}
+                                    </h6>
+                                    <Badge bg={order.status === 'paid' ? 'success' : 'warning'} style={styles.orderStatusBadge}>
+                                      {order.status}
+                                    </Badge>
+                                  </div>
+                                  <p style={styles.orderDate}>
+                                    <Calendar size={14} style={{marginRight: '6px'}} />
+                                    {new Date(order.orderTimestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                  </p>
+                                  <div style={styles.orderItems}>
+                                    {order.items.map((item, index) => (
+                                      <div key={index} style={styles.orderItemCard}>
+                                        <img src={item.image} alt={item.name} style={styles.itemImage} />
+                                        <span style={styles.itemName}>{item.name}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </Col>
+                                <Col md={4} style={styles.orderSummary}>
+                                  <div style={styles.priceItem}>
+                                    <span style={styles.priceLabel}>Subtotal:</span>
+                                    <span style={styles.priceValue}>₹{order.subtotal}</span>
+                                  </div>
+                                  <div style={styles.priceItem}>
+                                    <span style={styles.priceLabel}>Delivery:</span>
+                                    <span style={styles.priceValue}>₹{order.deliveryCharge}</span>
+                                  </div>
+                                  <div style={styles.totalPrice}>
+                                    <strong>Total Amount:</strong>
+                                    <strong style={styles.totalAmount}>₹{order.totalPrice}</strong>
+                                  </div>
+                                </Col>
+                              </Row>
+                            </Card.Body>
+                          </Card>
+                        ))
+                      ) : (
+                        <div style={styles.noData}>
+                          <Package size={48} style={styles.noDataIcon} />
+                          <p style={styles.noDataText}>No orders found for the selected period</p>
+                        </div>
+                      )}
+                    </Card.Body>
+                  </Card>
+                )}
+
+                {/* Custom Model Orders Tab */}
+                {activeTab === 'customOrders' && (
+                  <Card style={styles.contentCard}>
+                    <div style={styles.cardHeader}>
+                      <div style={styles.headerContent}>
+                        <h4 style={styles.cardTitle}>
+                          <Settings size={24} style={styles.headerIcon} />
+                          Custom Model Orders
+                        </h4>
+                        <Dropdown>
+                          <Dropdown.Toggle variant="light" style={styles.filterButton}>
+                            <Filter size={16} style={{marginRight: '6px'}} />
+                            {orderFilter === 'all' ? 'All Time' : 
+                             orderFilter === '30days' ? 'Last 30 Days' : 
+                             orderFilter === '3months' ? 'Last 3 Months' : 'Last Year'}
+                          </Dropdown.Toggle>
+                          <Dropdown.Menu>
+                            <Dropdown.Item onClick={() => setOrderFilter('all')}>All Time</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setOrderFilter('30days')}>Last 30 Days</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setOrderFilter('3months')}>Last 3 Months</Dropdown.Item>
+                            <Dropdown.Item onClick={() => setOrderFilter('1year')}>Last Year</Dropdown.Item>
+                          </Dropdown.Menu>
+                      </Dropdown>
+                      </div>
+                    </div>
+                    <Card.Body style={styles.cardBody}>
+                      {filteredCustomOrders && Object.keys(filteredCustomOrders).length > 0 ? (
+                        Object.entries(filteredCustomOrders).map(([orderKey, order]) => (
+                          <Card key={orderKey} style={styles.orderCard}>
+                            <Card.Body style={styles.orderCardBody}>
+                              <Row>
+                                <Col md={8}>
+                                  <div style={styles.orderHeader}>
+                                    <h6 style={styles.orderId}>
+                                      <Package size={16} style={{marginRight: '6px'}} />
+                                      Order #{order.orderId}
+                                    </h6>
+                                    <Badge bg="info" style={styles.orderStatusBadge}>
+                                      {order.status}
+                                    </Badge>
+                                  </div>
+                                  <p style={styles.orderDate}>
+                                    <Calendar size={14} style={{marginRight: '6px'}} />
+                                    {new Date(order.orderTimestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                  </p>
+                                  <div style={styles.filesSection}>
+                                    <strong style={styles.filesTitle}>Uploaded Files ({order.fileCount}):</strong>
+                                    <div style={styles.filesList}>
+                                      {order.files.map((file, index) => (
+                                        <div key={index} style={styles.fileItem}>
+                                          <span style={styles.fileIcon}>📄</span>
+                                          <span style={styles.fileName}>{file.originalName}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </Col>
+                                <Col md={4} style={styles.orderSummary}>
+                                  <div style={styles.priceItem}>
+                                    <span style={styles.priceLabel}>Subtotal:</span>
+                                    <span style={styles.priceValue}>₹{order.subtotal}</span>
+                                  </div>
+                                  <div style={styles.priceItem}>
+                                    <span style={styles.priceLabel}>Delivery:</span>
+                                    <span style={styles.priceValue}>₹{order.deliveryCharge}</span>
+                                  </div>
+                                  {order.discountAmount && (
+                                    <div style={styles.priceItem}>
+                                      <span style={styles.priceLabel}>Discount:</span>
+                                      <span style={styles.discountValue}>-₹{order.discountAmount}</span>
+                                    </div>
+                                  )}
+                                  <div style={styles.totalPrice}>
+                                    <strong>Total Amount:</strong>
+                                    <strong style={styles.totalAmount}>₹{order.totalPrice}</strong>
+                                  </div>
+                                </Col>
+                              </Row>
+                            </Card.Body>
+                          </Card>
+                        ))
+                      ) : (
+                        <div style={styles.noData}>
+                          <Settings size={48} style={styles.noDataIcon} />
+                          <p style={styles.noDataText}>No custom orders found for the selected period</p>
+                        </div>
+                      )}
+                    </Card.Body>
+                  </Card>
+                )}
+
+                {/* Support Tab */}
+                {activeTab === 'support' && (
+                  <Card style={styles.contentCard}>
+                    <div style={styles.cardHeader}>
+                      <h4 style={styles.cardTitle}>
+                        <Headphones size={24} style={styles.headerIcon} />
+                        Support & Assistance
+                      </h4>
+                    </div>
+                    <Card.Body style={styles.cardBody}>
+                      <p style={styles.supportIntro}>How can we help you today? Choose from the options below:</p>
+                      <Row>
+                        <Col md={6}>
+                          <Card 
+                            style={styles.supportCard}
+                            onClick={() => window.location.href = '/help'}
+                          >
+                            <Card.Body style={styles.supportCardBody}>
+                              <div style={styles.supportIconWrapper}>
+                                <HelpCircle size={40} style={styles.supportIcon} />
+                              </div>
+                              <h5 style={styles.supportCardTitle}>Help Center</h5>
+                              <p style={styles.supportCardText}>
+                                Find answers to frequently asked questions, tutorials, and step-by-step guides to help you navigate our platform.
+                              </p>
+                              <button style={styles.supportButton}>
+                                Visit Help Center →
+                              </button>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                        <Col md={6}>
+                          <Card 
+                            style={styles.supportCard}
+                            onClick={() => window.location.href = '/consultancy'}
+                          >
+                            <Card.Body style={styles.supportCardBody}>
+                              <div style={styles.supportIconWrapper}>
+                                <MessageSquare size={40} style={styles.supportIcon} />
+                              </div>
+                              <h5 style={styles.supportCardTitle}>Consultancy</h5>
+                              <p style={styles.supportCardText}>
+                                Get personalized consultation from our experts for your custom 3D printing projects and design requirements.
+                              </p>
+                              <button style={styles.supportButton}>
+                                Request Consultation →
+                              </button>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      </Row>
+                    </Card.Body>
+                  </Card>
+                )}
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      )}
 
       {/* Address Update Modal */}
       <Modal show={showAddressModal} onHide={handleCloseModal} size="lg">
@@ -705,6 +825,164 @@ const AccountSidebar = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <style>{`
+        @keyframes fadeInScale {
+          from {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        /* Custom Navigation Styles */
+        .nav-item-custom {
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        
+        .nav-item-custom:hover {
+          background: rgba(42,101,197,0.05) !important;
+          transform: translateX(4px);
+        }
+        
+        .orderCard:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+          border-color: #2a65c5;
+        }
+        
+        .orderItemCard:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          border-color: #2a65c5;
+        }
+        
+        .addressCard:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+          border-color: #2a65c5;
+        }
+        
+        .supportCard:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+          border-color: #2a65c5;
+        }
+        
+        .supportCard:hover .supportIconWrapper {
+          transform: scale(1.1) rotate(5deg);
+        }
+        
+        .supportButton:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(42,101,197,0.4);
+        }
+        
+        .retryButton:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(42,101,197,0.4);
+        }
+        
+        .detailItem:hover {
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          transform: translateX(4px);
+        }
+        
+        .fileItem:hover {
+          background: #e9ecef;
+          transform: translateX(4px);
+        }
+        
+        .form-control:focus {
+          border-color: #2a65c5;
+          box-shadow: 0 0 0 0.2rem rgba(42,101,197,0.25);
+        }
+        
+        .cancelButton:hover {
+          background: #5a6268 !important;
+          transform: translateY(-1px);
+        }
+        
+        .updateModalButton:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 15px rgba(42,101,197,0.4);
+        }
+        
+        .updateButton:hover {
+          background: #2a65c5 !important;
+          color: white !important;
+          transform: translateY(-1px);
+        }
+        
+        .filterButton:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+          .orderSummary {
+            border-left: none !important;
+            border-top: 3px solid #e9ecef;
+            padding-left: 0 !important;
+            padding-top: 20px;
+            margin-top: 20px;
+          }
+          
+          .addressHeader {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+          }
+          
+          .headerContent {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 15px;
+          }
+          
+          .cardTitle {
+            font-size: 20px !important;
+          }
+          
+          .nav-item-custom {
+            padding: 18px 20px !important;
+          }
+        }
+        
+        @media (max-width: 576px) {
+          .container {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+          }
+          
+          .cardBody {
+            padding: 20px 15px !important;
+          }
+          
+          .orderCardBody {
+            padding: 20px 15px !important;
+          }
+          
+          .supportCardBody {
+            padding: 25px 20px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };
@@ -783,7 +1061,11 @@ const styles = {
   navContainer: {
     padding: '15px 0'
   },
-  navLink: {
+  navWrapper: {
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  navItem: {
     padding: '16px 25px',
     color: '#4a5568',
     border: 'none',
@@ -796,16 +1078,29 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     cursor: 'pointer',
-    background: 'transparent'
+    background: 'transparent',
+    width: '100%'
   },
-  navLinkActive: {
+  navItemActive: {
     background: 'linear-gradient(90deg, rgba(42,101,197,0.08) 0%, rgba(42,101,197,0.02) 100%)',
     borderLeftColor: '#2a65c5',
     color: '#2a65c5',
     fontWeight: '600'
   },
   navIcon: {
-    marginRight: '12px'
+    marginRight: '12px',
+    flexShrink: 0
+  },
+  // Mobile specific styles
+  mobileContentCol: {
+    height: 'calc(100vh - 140px)',
+    overflow: 'hidden'
+  },
+  mobileScrollContainer: {
+    height: '100%',
+    overflowY: 'auto',
+    paddingBottom: '20px',
+    WebkitOverflowScrolling: 'touch'
   },
   contentCard: {
     border: 'none',
@@ -900,7 +1195,7 @@ const styles = {
     alignItems: 'center'
   },
   addressCard: {
-    border: '3px solid #e9ecef', // Thicker border
+    border: '3px solid #e9ecef',
     borderRadius: '15px',
     marginBottom: '20px',
     background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
@@ -943,7 +1238,7 @@ const styles = {
     fontStyle: 'italic'
   },
   orderCard: {
-    border: '3px solid #e9ecef', // Thicker border
+    border: '3px solid #e9ecef',
     borderRadius: '16px',
     marginBottom: '25px',
     transition: 'all 0.3s ease',
@@ -995,7 +1290,7 @@ const styles = {
     background: 'white',
     padding: '12px',
     borderRadius: '12px',
-    border: '3px solid #e9ecef', // Thicker border for order items
+    border: '3px solid #e9ecef',
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
@@ -1016,7 +1311,7 @@ const styles = {
     maxWidth: '200px'
   },
   orderSummary: {
-    borderLeft: '3px solid #e9ecef', // Thicker border
+    borderLeft: '3px solid #e9ecef',
     paddingLeft: '25px',
     display: 'flex',
     flexDirection: 'column',
@@ -1041,7 +1336,7 @@ const styles = {
     justifyContent: 'space-between',
     marginTop: '15px',
     paddingTop: '15px',
-    borderTop: '3px solid #e9ecef', // Thicker border
+    borderTop: '3px solid #e9ecef',
     fontSize: '16px',
     fontWeight: '700'
   },
@@ -1058,7 +1353,7 @@ const styles = {
     padding: '15px',
     background: 'white',
     borderRadius: '12px',
-    border: '3px solid #e9ecef' // Thicker border
+    border: '3px solid #e9ecef'
   },
   filesTitle: {
     fontSize: '14px',
@@ -1078,7 +1373,7 @@ const styles = {
     background: '#f8f9fa',
     borderRadius: '8px',
     transition: 'all 0.3s ease',
-    border: '2px solid #e9ecef' // Border for file items
+    border: '2px solid #e9ecef'
   },
   fileIcon: {
     fontSize: '18px',
@@ -1112,7 +1407,7 @@ const styles = {
     fontWeight: '500'
   },
   supportCard: {
-    border: '3px solid #e9ecef', // Thicker border
+    border: '3px solid #e9ecef',
     borderRadius: '16px',
     marginBottom: '25px',
     transition: 'all 0.4s ease',
@@ -1281,104 +1576,5 @@ const styles = {
     transition: 'all 0.3s ease'
   }
 };
-
-// Add CSS animations
-const styleSheet = document.createElement('style');
-styleSheet.textContent = `
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  .nav-link:hover {
-    background: rgba(42,101,197,0.05) !important;
-  }
-  
-  .orderCard:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 35px rgba(0,0,0,0.12);
-    border-color: #2a65c5;
-  }
-  
-  .orderItemCard:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    border-color: #2a65c5;
-  }
-  
-  .addressCard:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    border-color: #2a65c5;
-  }
-  
-  .supportCard:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-    border-color: #2a65c5;
-  }
-  
-  .supportCard:hover .supportIconWrapper {
-    transform: scale(1.1) rotate(5deg);
-  }
-  
-  .supportButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(42,101,197,0.4);
-  }
-  
-  .retryButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(42,101,197,0.4);
-  }
-  
-  .detailItem:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transform: translateX(4px);
-  }
-  
-  .fileItem:hover {
-    background: #e9ecef;
-    transform: translateX(4px);
-  }
-  
-  .form-control:focus {
-    border-color: #2a65c5;
-    box-shadow: 0 0 0 0.2rem rgba(42,101,197,0.25);
-  }
-  
-  .cancelButton:hover {
-    background: #5a6268 !important;
-    transform: translateY(-1px);
-  }
-  
-  .updateModalButton:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(42,101,197,0.4);
-  }
-  
-  .updateButton:hover {
-    background: #2a65c5 !important;
-    color: white !important;
-    transform: translateY(-1px);
-  }
-  
-  @media (max-width: 768px) {
-    .orderSummary {
-      border-left: none !important;
-      border-top: 3px solid #e9ecef;
-      padding-left: 0 !important;
-      padding-top: 20px;
-      margin-top: 20px;
-    }
-    
-    .addressHeader {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-    }
-  }
-`;
-document.head.appendChild(styleSheet);
 
 export default AccountSidebar;
