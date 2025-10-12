@@ -34,7 +34,23 @@ export default function ProductStore() {
       const result = await response.json();
       
       if (result.success) {
-        const sortedProducts = result.data.sort((a, b) => {
+        // Process products to round prices
+        const processedProducts = result.data.map(product => {
+          // Round finalPrice and price to remove decimals
+          const roundedProduct = { ...product };
+          
+          if (roundedProduct.finalPrice) {
+            roundedProduct.finalPrice = Math.round(parseFloat(roundedProduct.finalPrice));
+          }
+          
+          if (roundedProduct.price) {
+            roundedProduct.price = Math.round(parseFloat(roundedProduct.price));
+          }
+          
+          return roundedProduct;
+        });
+        
+        const sortedProducts = processedProducts.sort((a, b) => {
           const dateA = new Date(a.createdAt || a.dateAdded || 0);
           const dateB = new Date(b.createdAt || b.dateAdded || 0);
           return dateB - dateA;
@@ -169,12 +185,13 @@ export default function ProductStore() {
       return;
     }
 
+    // Round prices for cart item
     const cartItem = {
       id: product.id,
       name: product.modelName,
       description: product.description,
-      price: product.finalPrice || product.price || 0,
-      originalPrice: product.price || 0,
+      price: Math.round(product.finalPrice || product.price || 0),
+      originalPrice: Math.round(product.price || 0),
       image: product.images?.[0] || 'https://via.placeholder.com/150',
       quantity: 1,
       off: product.off || 0,

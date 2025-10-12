@@ -12,12 +12,18 @@ export default function Footer() {
   ];
 
   const socialLinks = [
-    { name: 'Instagram', icon: <Instagram size={22} />, href: '#', color: '#E4405F', hoverColor: '#C13584' },
-    { name: 'YouTube', icon: <Youtube size={22} />, href: '#', color: '#FF0000', hoverColor: '#CC0000' },
+    { name: 'Instagram', icon: <Instagram size={22} />, href: 'https://www.instagram.com/dimensify3_d/', color: '#E4405F', hoverColor: '#C13584' },
+    { name: 'YouTube', icon: <Youtube size={22} />, href: 'https://youtube.com/@dimensify3d?si=ig_PVAAnTZwUWnDT', color: '#FF0000', hoverColor: '#CC0000' },
     { name: 'Facebook', icon: <Facebook size={22} />, href: '#', color: '#1877F2', hoverColor: '#145DBF' },
-    { name: 'WhatsApp', icon: <MessageCircle size={22} />, href: '#', color: '#25D366', hoverColor: '#1DA851' },
+    {
+      name: 'WhatsApp',
+      icon: <MessageCircle size={22} />,
+      href: 'https://wa.me/919019303569',
+      color: '#25D366',
+      hoverColor: '#1DA851'
+    },
     { name: 'LinkedIn', icon: <Linkedin size={22} />, href: '#', color: '#0A66C2', hoverColor: '#084F91' },
-    { name: 'X (Twitter)', icon: <Twitter size={22} />, href: '#', color: '#000000', hoverColor: '#333333' },
+    { name: 'X (Twitter)', icon: <Twitter size={22} />, href: '#', color: '#1877F2', hoverColor: '#C13584' },
   ];
 
   return (
@@ -114,7 +120,7 @@ export default function Footer() {
                 <a
                   key={index}
                   href={social.href}
-                  style={{...styles.socialLink, '--hover-color': social.hoverColor}}
+                  style={{ ...styles.socialLink, '--hover-color': social.hoverColor }}
                   className="social-icon"
                   title={social.name}
                   data-color={social.color}
