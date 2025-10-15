@@ -6,6 +6,7 @@ export default function Footer() {
 
   const quickLinks = [
     { name: 'About Us', href: 'about' },
+    { name: 'Shipping Policy', href: '/shippingpolicy' },
     { name: 'Terms & Conditions', href: '/termsconditions' },
     { name: 'Privacy Policy', href: '/privacypolicy' },
     { name: 'Cancellation Policy', href: '/cancellationRefundpolicy' },
