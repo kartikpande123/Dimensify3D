@@ -493,7 +493,7 @@ const STLSlicer = () => {
     console.log(`Original time: ${timeInHours.toFixed(2)} hours`);
     console.log(`Rounded time: ${roundedHours} hours`);
 
-    const filamentCost = roundedFilamentGrams * 1;
+    const filamentCost = roundedFilamentGrams * 1.5;
     const timeCost = roundedHours * 2;
     const packagingCost = 15;
 
@@ -504,7 +504,7 @@ const STLSlicer = () => {
     const subtotal = filamentCost + timeCost + packagingCost;
     console.log(`Subtotal: ${subtotal} Rs`);
 
-    const humanEffortsCost = subtotal * 0.10;
+    const humanEffortsCost = subtotal * 0.20;
     console.log(`Human efforts (10%): ${humanEffortsCost} Rs`);
 
     const totalBeforeProfit = subtotal + humanEffortsCost;
