@@ -406,7 +406,7 @@ const OnlineStoreCheckout = () => {
       const { order } = orderDataRes;
 
       const options = {
-        key: "rzp_test_RIjBkh7ULIdYNr",
+        key: "rzp_live_RUxw1CnUrnTqD3",
         amount: order.amount,
         currency: order.currency,
         name: "Dimensify3D",
