@@ -1091,8 +1091,7 @@ const STLSlicer = () => {
     <>
       <Header />
 
-      <div style={{ background: 'linear-gradient(135deg, #f5f5f5 0%, #e9edf2 25%, #dce2e8 50%, #cfd6dd 75%, #e9edf2 100%)', minHeight: '100vh', paddingTop: '2rem' }}>
-        <Container fluid className="px-4">
+ <div id="stl-slicer-section" style={{ background: 'linear-gradient(135deg, #f5f5f5 0%, #e9edf2 25%, #dce2e8 50%, #cfd6dd 75%, #e9edf2 100%)', minHeight: '100vh', paddingTop: '2rem' }}>        <Container fluid className="px-4">
           {/* Tutorial Banner */}
           <Row className="mb-4">
             <Col>

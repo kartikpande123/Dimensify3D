@@ -35,6 +35,17 @@ const Header = () => {
         fetchProducts();
     }, []);
 
+
+
+            const scrollToSlicerSection = () => {
+        const element = document.getElementById('stl-slicer-section');
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+        };
+
+
+
     const checkUserLogin = async () => {
         try {
             const phoneNumber = localStorage.getItem('dimensify3duserphoneNo');
@@ -321,8 +332,9 @@ const Header = () => {
                     
                     {/* Compact STL Scroll Note */}
                     <div className="scroll-note-inline">
-                        <span className="scroll-message-inline">Scroll down to slice your STL file</span>
-                        <div className="scroll-arrow-inline">
+                        
+                        <span className="scroll-message-inline" onClick={scrollToSlicerSection} style={{ cursor: 'pointer' }}>Scroll down to slice your STL file</span>
+                         <div className="scroll-arrow-inline"onClick={scrollToSlicerSection}  style={{ cursor: 'pointer' }}>
                             <ChevronDown size={16} />
                         </div>
                     </div>
